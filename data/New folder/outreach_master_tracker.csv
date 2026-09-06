@@ -1,0 +1,153 @@
+contact_id,name,category,phone,address,rating,reviews,cold_call_status,cold_call_last_contacted_at,whatsapp_status,whatsapp_initial_contacted_at,whatsapp_followup_contacted_at,interest_level,is_meeting_milestone,meeting_date,meeting_time,next_follow_up_date,notes
+C001,Abhaya dental care best dental clinic,Dental Clinic,+918919839303,"Amrutha Business Complex, 7-1-58, Ameerpet Rd, above vijay diagnostics center, opposite Lal Bungalow",5.0,63,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C002,Begumpet Dental Specialities,Dental Clinic,+919985499853,"FLAT NO : 314, G-3a, Ground Floor prajay Corporate House, Chikoti Gardens, Begumpet Opposite To Shoppers Stop Lane, beside F&F super Market",4.9,73,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C003,Indian Dental Specialties,Dental Clinic,+914024567477,"16-3-989, A/1, Government Printing Press Rd",4.1,35,Not Contacted,,Not Contacted,,,,No,,,,
+C004,L.B.NAGAR DENTAL CLINIC,Dental Clinic,+919291532283,"3-6-20,above medicare hospitals, Lbnagar",3.8,10,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C005,Sri Sai Pavan Dental Clinic,Dental Clinic,+919010341774,"Opp Vijaya Diagnostic Centre, Balaji Temple road, Uppal - Ramanthapur Rd",5.0,57,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C006,SAI RATNA DENTAL CLINIC since 1996,Dental Clinic,+917989217501,Hyderabad - Warangal - Bhopalpatnam Hwy,4.9,160,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C007,SHREE KAVADI'S DENTAL AND COSMETOLOGY CLINIC,Dental Clinic,+916300387049,"1-42/T/Nh Jp Nagar, Road, Miyapur Thirumala Nursing Home Building, Miyapur 1-42/T/Nh Jp Nagar, Road, Gachibowli - Miyapur Rd",4.9,164,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C008,Dr. Sree Rama Murthy's dental clinic,Dental Clinic,+914023232351,"F-14, 15, 16 Agarwal Chamber, King Koti Rd, Road",4.5,26,Not Contacted,,Not Contacted,,,,No,,,,
+C009,SAI LEELA DENTAL CLINIC,Dental Clinic,+918886622990,,4.6,68,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C010,NeoDent Dental Hospital,Dental Clinic,+919030598081,"Medwin Hospital Complex, Pillar #A1270",4.5,154,Not Contacted,,Not Contacted,,,,No,,,,
+C011,UNITED DENTAL CARE,Dental Clinic,+918074688511,"H No 11-6-400, mahant nivas, Dargah Yousufain Rd",5.0,147,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C012,Mehdipatnam Dental Hospital,Dental Clinic,+919849155096,"Inguva Towers, 1st Floor, Beside Chandana Brothers, Opp. Pillar No. 20-21,",4.8,31,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C013,THE TOOTH DENTAL STUDIO By Dr. Mohammed Imran Ali Dental Clinic,Dental Clinic,+919966340056,"Nasr Plaza, Plot No 158, above UCO Bank, beside Honda Showroom",5.0,1100,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C014,Chroma Dental,Dental Clinic,+919912269955,"Upperpally, Telangana",5.0,580,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C015,"SAI YASHODA DENTAL CLINIC ,Plot no 6-2-4, Shivarampally, Opp Pillar no 291.",Dental Clinic,+914029339937,"Plot no 6-2-4, opp. Pillar no 291",4.8,34,Not Contacted,,Not Contacted,,,,No,,,,
+C016,Sagar’s Dental Hospital,Dental Clinic,+918639625866,"Reliance smart buidling (k.s.towers, Rallaguda Rd, opposite balaji diagnostics",5.0,265,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C017,KVR Dental Hospital,Dental Clinic,+918374718105,"Rallaguda Rd, opposite Sub Register Office",4.8,113,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C018,Iqbal Dentist,Dental Clinic,+919247490936,#23-1-16,5.0,12,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C019,Royal dental Clinic,Dental Clinic,+919885212724,"8FQ8+38J, # Vattepally Road, Jahanuma, Falaknuma",4.2,11,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C020,Hazeq Dental Clinic,Dental Clinic,+919032119848,"Shop No.3/4, Opp Harmain Hospital, Falaknuma X Road, Falaknuma Rd",4.6,7,Not Contacted,,Not Contacted,,,,No,,,,
+C021,SARITHA DENTAL CLINIC,Dental Clinic,+919347240345,"Malla reddy complex, below sriram Raghavendra chits, near Spenser",4.9,1300,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C022,DR.JSR DENTAL HEALTH SPECIALITY,Dental Clinic,+918341911977,,5.0,590,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C023,AVR Family Dental Care. ALWAL,Dental Clinic,+919573935016,"AVR Family Dental Care,plot 24, RNR elite, venkataramana colony, Loyola College Rd",4.9,776,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C024,"Spark Dental Clinic, Alwal, Hyderabad.",Dental Clinic,+918143213909,"1-10-168/2/D, Alwal Rd",4.9,160,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C025,Family Dental Care The Best Dental clinic in Nagole Bandlaguda Hyderabad,Dental Clinic,+918309549232,"New Nagole Main Rd, opposite Vijetha Rindha Meadows",5.0,136,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C026,GK Dental Care,Dental Clinic,+918143250938,"Laxmi Complex, H.No 8-5/2, Sardar Patel Rd",5.0,42,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C027,Nizampet Dental Hospital,Dental Clinic,+919885579327,"Shop No. 5, Sri Kritha Sadan,Beside HP petrol bunk ,Nizampet Near Castle Town High School, Nizampet Village",4.8,89,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C028,Rajeswari Dental Care,Dental Clinic,+919640615421,opp: sukhasagara tiffin centre,4.9,218,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C029,Siddhartha Dental Clinic,Dental Clinic,+914040251555,"F36, F Block, Madhura Nagar Internal Road, Opp Andhra Bank Lane, Yousufguda",4.9,107,Not Contacted,,Not Contacted,,,,No,,,,
+C030,Sanathnagar Dental Hospital,Dental Clinic,+919849166546,"SRT, 257, Sanath Nagar Main Rd",4.3,18,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C031,Surya Dental & Medical clinic,Dental Clinic,+917207726666,"Srt:-1139, Opp:, Renova Neelima Hospital",5.0,130,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C032,ORR Dental Clinic (Formerly Dr. Smiles Dental Care) | Erragadda Hyderabad,Dental Clinic,+919449014325,"Cellar # 07, Bhanu Enclave, 18, beside ESI Road",4.9,278,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C033,SRI VENKATESWARA ADVANCED DENTISTRY,Dental Clinic,+919652492468,"Parameshwari Apartments, Plot No 95, opposite Sringeri Shankar Mutt",4.9,64,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C034,Sree balaji super speciality dental hospital,Dental Clinic,+918328004945,"E Seva Rd, adjacent to vijetha supermarket",4.9,327,Not Contacted,,Contacted,2026-07-27T10:24:29,,,No,,,,
+C035,Ivory Oro-Care Dental Hospital,Dental Clinic,+919030434034,1st Floor Opp. Axis Bank,4.9,174,Not Contacted,,Contacted,2026-07-27T10:32:36,,,No,,,,
+C036,Sri Sainath Multi Speciality Dental Clinic,Dental Clinic,+919908098333,"202, Maruthi Grandeur Apartment, Dwarakpuri Colony, Punjagutta",4.8,55,Not Contacted,,Contacted,2026-07-27T10:32:36,,,No,,,,
+C037,Sri Sai Dental Clinic,Dental Clinic,+914027608035,"1-7-389, Laxmi Anasha Apartment Musheerabad Main Road Dayara",4.7,43,Not Contacted,,Not Contacted,,,,No,,,,
+C038,Anu's Dental-అనూస్ డెంటల్ & Implant Centre - RTC X Roads,Dental Clinic,+917569999199,"Metro Pillar Number B1112, RTC X Rd, beside Unlimited Shopping Mall",4.6,519,Not Contacted,,Contacted,2026-07-27T10:32:36,,,No,,,,
+C039,KAAMAT DENTAL | Toothsi by MakeO | RTC Cross Road,Dental Clinic,+917095008228,"Flat No.102, Sripathi Enclave, Plot No. 1-1-364/66 & 67, Indira Park Rd, above Murugan Ghee Store",4.9,54,Not Contacted,,Contacted,2026-07-27T10:32:36,,,No,,,,
+C040,Ace Dental,Dental Clinic,+919154993101,"Between SBI & Pista house Pillar No 9, Satya Nivas Building 1-8-541, beside pista house",4.9,83,Not Contacted,,Not Contacted,,,,No,,,,
+C041,Southern Dental Clinic,Dental Clinic,+919493821498,2-1075/22/A,5.0,15,Not Contacted,,Not Contacted,,,,No,,,,
+C042,AMBERPET DENTAL CLINIC,Dental Clinic,+919391314718,"Opp. Sri Ramana Theatre, beside Lucky Star Cafe",1.8,5,Not Contacted,,Not Contacted,,,,No,,,,
+C043,M.V.S.Dental Clinic,Dental Clinic,+918008003065,"Shop No.2-2-647/182/A/FF14, New Azam Complex, Shivam Road, C.E.Colony, Bagh Amberpet, Shivam Rd",4.9,75,Not Contacted,,Not Contacted,,,,No,,,,
+C044,PRAVITA DENTAL CLINIC & STUDIO | Dr. Prasad K | Dentist | Habsiguda,Dental Clinic,+919440662988,"Opp: legend apartments, Street No. 8",5.0,126,Not Contacted,,Not Contacted,,,,No,,,,
+C045,Shine and Smile Family Dental Clinic,Dental Clinic,+919703199974,"1st floor, GGG7+C75, Macha Bolarum Rd",5.0,43,Not Contacted,,Not Contacted,,,,No,,,,
+C046,Dr. Anjali's Dental Care,Dental Clinic,+917416344284,"2-10-28/3, Bollaram Station Rd",5.0,2,Not Contacted,,Not Contacted,,,,No,,,,
+C047,Infinity Dental & Orthodontic Clinic,Dental Clinic,+919949490760,INFINITY Dental & Orthodontic Clinic Trimulgherry-Lal bazar main road Near Trimulgherry traffic police station,5.0,111,Not Contacted,,Not Contacted,,,,No,,,,
+C048,MANU'S DENTAL CARE AND AESTHETICS,Dental Clinic,+919032792212,"Plot no. 5, Market yard road",4.9,58,Not Contacted,,Not Contacted,,,,No,,,,
+C049,Marredpally Dental Clinic,Dental Clinic,+392628,,4.4,69,Not Contacted,,Not Contacted,,,,No,,,,
+C050,Vijaya Dental Clinic,Dental Clinic,+917989296362,"156, G 1, Sri Laxmi Residency 1st Main Road MayaBazar restaurant line",5.0,205,Not Contacted,,Not Contacted,,,,No,,,,
+C051,Sri Laxmi Dental Clinic,Dental Clinic,+918309509223,"Near, Ambedkar Statue, beside Yours Universe Bakery, opposite to Bharath Petroleum station",4.8,151,Not Contacted,,Not Contacted,,,,No,,,,
+C052,Dr.Anil's Super Speciality Dental hospital and Implant Centre in Boduppal | Best Dentist in Boduppal,Dental Clinic,+917416046516,"1st floor, on, Hyderabad - Warangal Hwy, above punjab national bank, near Uppal Depot",5.0,739,Not Contacted,,Not Contacted,,,,No,,,,
+C053,Santosh Nagar Dental Clinic,Dental Clinic,+914024536404,"Shop No. 17-1-380/E142/B, 17-1-314/3/A, Santosh Nagar Main Rd, near Allahabad Bank",4.2,39,Not Contacted,,Not Contacted,,,,No,,,,
+C054,Landmark Dental,Dental Clinic,+918074361287,"2nd floor, office no.201, 17-1-A, 1/201, SBI Rd, opposite Srinivasa hospital",4.9,167,Not Contacted,,Not Contacted,,,,No,,,,
+C055,RUKKUS DENTAL HOSPITALS PVT LTD,Dental Clinic,+919440253019,"3-4-759, Nallakunta Main Rd, opposite Petrol Pump Barkatpura",4.2,371,Not Contacted,,Not Contacted,,,,No,,,,
+C056,Apex Dental,Dental Clinic,+917569495444,"Ground floor, Belvedere gardens phase1, beside ICICIbank",4.9,417,Not Contacted,,Not Contacted,,,,No,,,,
+C057,Smiles And More Dental And Implant Centre,Dental Clinic,+918790326361,"6-1-283/5, opp. North Star Apartment, near KFC & KPN Fresh 500025",5.0,196,Not Contacted,,Not Contacted,,,,No,,,,
+C058,Kalpana Care32 Dental Clinic,Dental Clinic,+918328679049,"Jayaprakash Narayan Road, near Satya Hospital Street, opposite vishwakarma veedhi (Street",4.9,181,Not Contacted,,Not Contacted,,,,No,,,,
+C059,Shantha Dental Clinic,Dental Clinic,+919704224602,"Punjab National Bank Complex, beside Latha nursing Home",4.9,328,Not Contacted,,Not Contacted,,,,No,,,,
+C060,SMILE 'N' GUM CARE,Dental Clinic,+919966082434,"Khammam, Telangana",5.0,28,Not Contacted,,Not Contacted,,,,No,,,,
+C061,"Vijaya Dental Hospital- Laser & Implant Centre, Nalgonda",Dental Clinic,+919032521152,"Natraj Talkies Road, Anurag Childrens Hospital, Prakasham Bazar Rd, beside Suraksha Hospital, opp. Dr.Sudhakar",4.9,231,Not Contacted,,Not Contacted,,,,No,,,,
+C062,Sri Vibha Dental Clinic - Best Dental Clinic in Mahabubnagar | Best Dentist in Mahabubnagar,Dental Clinic,+916300420769,"bayammathota lane, opp. shetty complex, beside Anil surgicare",5.0,334,Not Contacted,,Not Contacted,,,,No,,,,
+C063,"Gayathri Dental Hospital, Mahabubnagar,Dr.Dileep",Dental Clinic,+918985000587,"Srinivas Reddy Hospital, Opp lane to Dr, Railway Station Rd",4.9,1000,Not Contacted,,Not Contacted,,,,No,,,,
+C064,Smile N Shine Multi Speciality Dental Clinic,Dental Clinic,+918309903377,inside shetty complex,5.0,32,Not Contacted,,Not Contacted,,,,No,,,,
+C065,SRIKANTH MULTI SPECIALITY DENTAL HOSPITAL,Dental Clinic,+919030912230,"1-2-270, 56/d, MG Rd, beside Dr kurapati Narayana Hospital, near HDFC Bank",5.0,456,Not Contacted,,Not Contacted,,,,No,,,,
+C066,Sri Laxmi Dental Hospital,Dental Clinic,+918008717170,"Suryapet, Telangana",4.9,93,Not Contacted,,Not Contacted,,,,No,,,,
+C067,Nikhil multi speciality dental care,Dental Clinic,+919030415520,opp. to railway station ( thakur hotel,4.9,41,Not Contacted,,Not Contacted,,,,No,,,,
+C068,Crown Dental Clinic,Dental Clinic,+919949414860,"5-1-129/2, beside Manasa Hospital",4.9,232,Not Contacted,,Not Contacted,,,,No,,,,
+C069,Nidhi Dental Clinic,Dental Clinic,+919177888856,"Hno-11-17 shop no 1 frist floor, Medchal Market Main Rd, behind ambdekar statue",5.0,86,Not Contacted,,Not Contacted,,,,No,,,,
+C070,Maruthi Dental Clinic,Dental Clinic,+919885535487,"NH-44, Main Road, opp. Apollo pharmacy, beside DTDC Courier",4.7,43,Not Contacted,,Not Contacted,,,,No,,,,
+C071,Medchal dental clinic,Dental Clinic,+919849891515,"1st floor, Medchal highway....saileela complex",4.8,5,Not Contacted,,Not Contacted,,,,No,,,,
+C072,Prerna Bansal (Psychologist) - Child & Parent Counselling,Psychologist,+918170033316,,,,No Answer,,,,,,No,,,,Website status: No website found. Search result doesn't show an official website.
+C073,Happy Mentes Counseling Centre,Counselling Centre,+919392191498,,,,Not Contacted,,Contacted,,,,No,,,,Website status: No website found. Only Calendly is visible in search results.
+C074,SAI Suraksha Physiotherapy and Rehabilitation Centre,Physiotherapy Clinic,+919849151375,,,,Not Contacted,,,,,,No,,,,Website status: No website found. Strong Google reviews but no official website. Follow-up: Yes - plan to call
+C075,Dr. Navodita Kumar,Doctor,+919177942001,,,,Not Contacted,,,,,,No,,,,Website status: No website found. Currently relies on Apollo profile.
+C076,KARLA Neuromodulation,Neuromodulation Clinic,+919059626635,,,,Not Contacted,,,,,,No,,,,Website status: No website found. Currently dependent on HealthPlix.
+C077,Sakar Counselling Centre,Counselling Centre,+919550656621,,,,Not Contacted,,,,,,No,,,,Website status: No website found. Currently only WhatsApp booking. Follow-up: Yes - send brochure via WhatsApp
+C078,Sattva Counseling Hyderabad,Counselling Centre,+918885253092,,,,Not Contacted,,,,,,No,,,,Website status: No website found. Good reviews but no dedicated website.
+C079,Little Wings Child Development Centre,Child Development Centre,+917508333666,,,,Not Contacted,,,,,,No,,,,Website status: No website found. Can showcase all therapy services professionally.
+C080,Sunrise Child Development & Early Intervention Clinic,Child Development Centre,+917680035979,,,,Not Contacted,,,,,,No,,,,Website status: No website found. Large service list can be organized better.
+C081,Keerthi Child Development Center,Child Development Centre,+917032101689,,,,Not Contacted,,,,,,No,,,,Website status: No website found. No official website visible.
+C082,Blissful Being Hub – Growing with Krishna,Wellness/Coaching,+919158825666,,,,Not Contacted,,,,,,No,,,,Website status: Lovable free website (needs custom domain + branding). Great opportunity - website exists but on Lovable subdomain/branding.
+C083,Sri Astro Clinic,Astrologer,+919849027364,"Suchitra X Rd, Jeedimetla, Hyderabad",5.0,116,No answer,,Not Contacted,,,Cold,No,,,Tomorrow (after full cycle),Did not connect - retry tomorrow
+C084,Parashara Jyotisha Vidyapeetham,Astrologer,+918919838881,"near Hanuman Mandir, Kompally, Hyderabad",4.9,111,Owner-declined,,Contacted,,,Cold,No,,,,"Spoke with owner Virabhatra Sastry - not interested on call, open to WhatsApp follow-up | WhatsApp outreach also sent - follow up needed."
+C085,Tejaswi Sarma Astrology,Astrologer,+919390193901,"18-A IDA, Balanagar, Hyderabad",4.5,407,Gatekeeper - owner not present,,Contacted,,,Cold,No,,,,"Spoke with receptionist - owner not available, retry when owner present | WhatsApp outreach also sent - follow up needed."
+C086,The Planet Hope ELCDC,Child Psychologist,+917386993607,"Panchsheel Enclave, Alwal, Hyderabad",5.0,24,No answer,,Not Contacted,,,Cold,No,,,,Did not pick up - retry | Website status: No website found. No official website listed.
+C087,Thalaka & Associates CA,Chartered Accountant / Tax Consultant,+918971715181,"Vivekananda Nagar, Hyderabad",4.9,198,Owner-declined,,Not Contacted,,,Cold,No,,,,"Not interested, cut the call - no follow-up needed"
+C088,Sri Siddartha Pediatric Therapy & Autism Center,Occupational Therapist,+919949362781,"Kukatpally, Hyderabad",4.9,56,Interested - requested info,,Contacted,,,Warm,No,,,,"Spoke with contact, seemed interested - send details/brochure on WhatsApp | WhatsApp outreach also sent - follow up needed."
+C089,SAKSHAM - Center for ASD and ADHD,Child Psychologist,+916309541246,"Jeedimetla, Hyderabad",5.0,22,Contacted,,Contacted,,,Cold,No,,,,| WhatsApp outreach also sent - follow up needed.
+C090,Rainbows Child Development Centre,Speech & Hearing Specialist,+918309044096,"Nizampet, Hyderabad",4.7,195,Receptionist requested brochure - owner not spoken to,,Contacted,,,Warm (unconfirmed),No,,,,"Spoke to receptionist, not owner - asked to send brochure, interest not confirmed by decision maker | WhatsApp outreach also sent - follow up needed."
+C091,Sphoorthi Speech Therapy,Speech & Hearing Specialist,+919912129667,"Kukatpally, Hyderabad",4.9,53,No call - WhatsApp outreach sent,,Contacted,,,Cold,No,,,,"Skipped call, reached out directly on WhatsApp (WhatsApp follow-up planned, not yet confirmed sent)"
+C092,CH & Associates CA,Chartered Accountant,+919700246888,"Sanjeeva Reddy Nagar, Hyderabad",4.4,27,Call did not connect properly,,Not Contacted,,,Cold,No,,,,"Call quality/connection issue - follow up via WhatsApp planned (WhatsApp follow-up planned, not yet confirmed sent)"
+C093,Prasanna Shutterbugs,Photography,86866 36000,"Anand Rao Nagar, Old Alwal, Park, Janaki Nagar, Alwal, Secunderabad, Telangana 500010",5,22,Contacted,2026-08-02,Not Contacted,,,,No,,,,"No answer
+[2026-08-02] Call: No Answer"
+C094,StudioR Stories,Photography,89196 30451,"HT road, above Lensekraft, Rd Number 13, near Lion Park, Alwal, Panchaleela, Secunderabad, Telangana 500067",5,46,Contacted,2026-08-02,Not Contacted,,,,Yes,2026-08-03,15:00,,"[2026-08-02] Call: Doubt, may or may not answer the demo meet, but i sscheduled it
+[2026-08-03] Meeting: 4Pm"
+C095,Reddy Photo Studio,Photography,99490 45960,"Temple Alwal Rd, Temple Alwal, Alwal, Secunderabad, Telangana 500010",4.6,94,Contacted,2026-08-02,Not Contacted,,,,No,,,,"Not Intrested
+[2026-08-02] Call: Not intrested"
+C096,Sampath photography,Photography,89785 39319,,4.9,46,Contacted,2026-08-02,Not Contacted,,,Cold,No,,,,"should send him whats app follow up for the meeting
+[2026-08-02] Call: Send whatsapp out reach , send some  sites, and then ask for the follow up meet"
+C097,Avinash Rayudu Photography,Photography,98516 22228,,,,Contacted,2026-08-02,Not Contacted,,,Cold,No,,,,"send him few sitees which will look good, and also other services we provide
+[2026-08-02] Call: we need to send our works, and show why they need pick us"
+C098,Vijay photography,Photography,70322 92052,"Maruti Arcade, Swamik Nagar, AS Rao Nagar, Hyderabad, Secunderabad, Telangana 500062",5,48,Contacted,,Not Contacted,,,Cold,No,,,,Already happy with the inqueries
+C099,Filmy Sign,Photography,095051 55502,,5,47,Contacted,2026-08-17,Not Contacted,,,,No,,,,[2026-08-17] Call: domain rebuying can follow up on our service
+C100,Sri Mani Digital Studio,Photography,081859 32978,"Hp Petrol Pump, opposite Old Alwal, Chandra Nagar Colony, Ayyappa Nagar Colony, Bolarum, Hyderabad, Secunderabad, Telangana 500010",4.6,176,Contacted,,Not Contacted,,,Hot,Yes,2026-08-03,15:00,,
+C101,Odp Studioz,Photography,099665 65251,"Plot no.16, Ramlingeswara Colony, Back Side Karimnagar Diary Ramlingeswara Colony, Macha Bolarum Rd, Machabollaram, Secunderabad, Telangana 500010",4.8,40,Cut the Call,,Not Contacted,,,Cold,No,,,,Not tallking again
+C102,Kalyan Photography Studio,Photography,090000 50493,,4.9,57,Contacted,2026-08-04,Not Contacted,,,,No,,,,follow up in two months
+C103,Akshara Photography,Photography,073969 10620,,4.8,105,Contacted,2026-08-04,Not Contacted,,,Cold,No,,,,ALready have a website now
+C104,Aruna Studio Sainikpuri,Photography,081256 71832,,,,Contacted,2026-08-04,Not Contacted,,,,Yes,2026-08-04,13:30,,
+C105,The House of Maya(THOM)-Wedding Photography & Films,Photography,072075 75063,,,,Contacted,2026-08-04,Not Contacted,,,,Yes,2026-08-04,15:00,,deal done
+C106,To The Moon And Back,Photography,95056 22349,,,,Contacted,2026-08-04,Not Contacted,,,Warm,No,,,2026-09-04,"follow up after a month by call, and send my works to him"
+C107,Prashanth Muhurtham Photography,Photography,93473 70223,,4.9,187,Contacted,2026-08-04,Not Contacted,,,,No,,,,Not gonna work on this guy
+C108,Ams photography21,Photography,090008 83670,,,,No Answer,2026-08-12,Not Contacted,,,,No,,,,
+C109,Pix Culture Studios – Best Photography in Hyderabad,Photography,9182566779,,,,No Answer,2026-08-12,Not Contacted,,,,No,,,,
+C110,Zoominfotography,Photography,099595 74553,,,,Contacted,2026-08-12,Not Contacted,,,,No,,,,"so this guys does events, and also photography, asked to send him the demo or work or anything, i need to go through what events he or she is doing, and then send him a pdf, kind of demo, with alll the things we can have in the website by the eod"
+C111,Keshu Photography,Photography,070130 89538,,,,No Answer,2026-08-12,Not Contacted,,,,No,,,,
+C112,Abhiraaj photography,Photography,082483 46843,,,,Not Interested,2026-08-12,Not Contacted,,,,No,,,,
+C114,Insideoutfoto,Photography,81251 36898,,,,Contacted,2026-08-17,Not Contacted,,,,No,,,,"[2026-08-17] Call: will send him his website fix, and also quote my service"
+C115,Immortal Stories - Wedding Photography,Photography,90326 99522,,,,Not Interested,2026-08-12,Not Contacted,,,,No,,,,Website not opening
+C116,Wedding Bells Studio,Photography,73307 11039,,,,No Answer,2026-08-17,Not Contacted,,,,No,,,,
+C117,Vichitram Photography,Photography,079933 49332,,4.7,18,No Answer,2026-08-17,Not Contacted,,,,No,,,,
+C118,Thestoryloom,Photography,7799636464,,,,No Answer,2026-08-17,Not Contacted,,,,No,,,,
+C119,V Zone Photography,Photography,081439 48257,,4.9,140,Not Interested,2026-08-17,Not Contacted,,,,No,,,,"so, the website is not opening
+[2026-08-17] Call: not interested"
+C120,Auspicious Photography,Photography,88971 84324,,,,Not Interested,2026-08-17,Not Contacted,,,,No,,,,
+C121,Sherlas Photography,,088019 44771,,4.8,33,Not Contacted,,Not Contacted,,,,No,,,,
+C122,Studio P weddings,Photography,063001 81023,,,,Contacted,2026-08-17,Not Contacted,,,,No,,,,"[2026-08-17] Call: Needs follow up
+7pm later"
+C123,Purohith’s Photography,Photography,097006 36380,,,,Not Interested,2026-08-17,Not Contacted,,,,No,,,,
+C124,Charan photography Studio,Photography,096668 00074,,,,Not Interested,2026-08-17,Not Contacted,,,,No,,,,
+C125,Sreekar Photography,Photography,096038 31416,,,,Contacted,2026-08-17,Not Contacted,,,,No,,,,[2026-08-17] Call: follow up after 2 days
+C126,Krishna Photography,Photography,096527 55965,,,,No Answer,2026-08-17,Not Contacted,,,,No,,,,[2026-08-17] Call: i did not  want to call
+C127,"Infinity focus, photography",Photography,095501 24124,,,,No Answer,2026-08-17,Not Contacted,,,,No,,,,
+C128,Aruna Studio,Photography,099495 70888,,,,Not interested,2026-08-17,Not Contacted,,,,No,,,,
+C129,The Darkroom Studios,Photography,99898 31278,,,,Contacted,2026-08-17,Not Contacted,,,,No,,,,"[2026-08-17] Call: Follow up , on him started another business so , not sure what it is, may be can follow up on him  , for autommation or website etc"
+C130,AGCapture24: Timeless Wedding Photography,Photography,94923 45681,,,,Not Contacted,,Not Contacted,,,,Yes,2026-08-17,14:30,,
+C131,sai balaji studio,Photography,98490 26604,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C132,Chitrakalakarulu Studios,Photography,063027 15520,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C133,marristudios - BN REDDY,Photography,081858 61315,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C134,Amruthaluri Films,Photography,084999 29209,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C135,Akhilesh Rupaji Chronicle,Photography,083310 21085,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C136,Light of Love,Photography,094917 00910,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C137,Forever Studios,Photography,99661 70701,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C138,The Theme Studios - Production House,Photography,95027 22122,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C139,The Wedding Vegas by SAHNI STUDIO,Photography,089190 48594,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C140,Vibrant Pix Wedding Photography,Photography,095504 03000,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C141,AntiqueFilms Photography,Photography,070325 34073,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C142,iClickWeddings Photography,Photography,98320 19556,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C143,Small Studios,Photography,075500 75777,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C144,The Candid Pictures,Photography,094928 86655,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C145,TRINITY PHOTOGRAPHY,Photography,099669 91238,,,,Not Contacted,,Not Contacted,,,,No,,,,
+C146,LOL - Land Of Love,Photography,099662 25666,,,,Not Contacted,,Not Contacted,,,,No,,,,
