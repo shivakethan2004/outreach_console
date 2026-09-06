@@ -20,16 +20,13 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Contact, emptyContact, WHATSAPP_STATUSES } from "@/lib/types";
-
-const COLD_CALL_SUGGESTIONS = [
-  "Not Contacted",
-  "No Answer",
-  "Gatekeeper - owner not present",
-  "Interested - requested info",
-  "Owner-declined",
-  "Not Interested",
-];
+import {
+  Contact,
+  emptyContact,
+  WHATSAPP_STATUSES,
+  COLD_CALL_STATUSES,
+  CURRENT_STATUSES,
+} from "@/lib/types";
 
 const INTEREST_OPTIONS = ["", "Cold", "Warm", "Hot"];
 
@@ -138,17 +135,21 @@ export function EditContactDialog({
 
           <div className="space-y-1.5">
             <Label htmlFor="cold_call_status">Cold call status</Label>
-            <Input
-              id="cold_call_status"
-              list="cold-call-suggestions"
-              value={form.cold_call_status}
-              onChange={(e) => update("cold_call_status", e.target.value)}
-            />
-            <datalist id="cold-call-suggestions">
-              {COLD_CALL_SUGGESTIONS.map((s) => (
-                <option key={s} value={s} />
-              ))}
-            </datalist>
+            <Select
+              value={form.cold_call_status || "Not Contacted"}
+              onValueChange={(v) => update("cold_call_status", v)}
+            >
+              <SelectTrigger id="cold_call_status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {COLD_CALL_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">
@@ -159,6 +160,28 @@ export function EditContactDialog({
               value={form.cold_call_last_contacted_at}
               onChange={(e) => update("cold_call_last_contacted_at", e.target.value)}
             />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="current_status">Current status</Label>
+            <Select
+              value={form.current_status || "Can Call Again"}
+              onValueChange={(v) => update("current_status", v)}
+            >
+              <SelectTrigger id="current_status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CURRENT_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              What to do about this lead next — filterable, drives the dashboard.
+            </p>
           </div>
 
           <div className="space-y-1.5">

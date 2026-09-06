@@ -1,5 +1,5 @@
-import { Contact } from "./types";
-import { ChangeEntry } from "./changelog-types";
+import { Contact, isDeadLead } from "./types";
+import { ChangeEntry, parseSnapshot } from "./changelog-types";
 import { todayIso, isSameDay } from "./format";
 
 export function dailyActivitySeries(changelog: ChangeEntry[], days: number) {
@@ -166,6 +166,149 @@ export function needsFollowUp(contacts: Contact[]) {
     if (/follow[- ]?up/i.test(c.notes || "")) return true;
     return false;
   });
+}
+
+/** Leads that are still worth pursuing — "Not Interested" is a dead end. */
+export function activeContacts(contacts: Contact[]) {
+  return contacts.filter((c) => !isDeadLead(c.current_status));
+}
+
+/**
+ * Progress = am I hitting my daily call-limit target. One bar per day,
+ * colored by how close to (or past) the limit that day's calls got.
+ */
+export function progressSeries(
+  changelog: ChangeEntry[],
+  days: number,
+  dailyLimit: number
+) {
+  const today = todayIso();
+  const series: {
+    date: string;
+    label: string;
+    calls: number;
+    limit: number;
+    pct: number;
+    met: boolean;
+  }[] = [];
+
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today + "T00:00:00");
+    d.setDate(d.getDate() - i);
+    const dateIso = d.toISOString().slice(0, 10);
+    const calls = changelog.filter(
+      (e) => e.change_type === "cold_call_logged" && isSameDay(e.timestamp, dateIso)
+    ).length;
+    const pct = dailyLimit > 0 ? Math.round((calls / dailyLimit) * 100) : 0;
+
+    series.push({
+      date: dateIso,
+      label: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+      calls,
+      limit: dailyLimit,
+      pct,
+      met: calls >= dailyLimit,
+    });
+  }
+
+  return series;
+}
+
+export type NicheVerdict =
+  | "not_enough_data"
+  | "working"
+  | "promising"
+  | "not_working";
+
+export type NicheAnalytics = {
+  category: string;
+  totalCalls: number;
+  whatsappOutreach: number;
+  meetingsBooked: number;
+  dealsClosed: number;
+  verdict: NicheVerdict;
+};
+
+const MIN_CALLS_TO_JUDGE = 100;
+const MIN_MEETINGS_TO_WORK = 5;
+const MIN_DEALS_TO_WORK = 1;
+
+/**
+ * Per-niche (category) analytics: calls made, WhatsApp outreach sent, and
+ * meetings booked — the three numbers that decide whether a niche is
+ * worth continuing to focus on.
+ */
+export function nicheAnalytics(
+  contacts: Contact[],
+  changelog: ChangeEntry[]
+): NicheAnalytics[] {
+  // category lookup by contact_id, falling back to the changelog snapshot's
+  // own category in case a contact was later deleted or recategorized.
+  const categoryById = new Map<string, string>();
+  for (const c of contacts) categoryById.set(c.contact_id, c.category?.trim() || "Uncategorized");
+
+  function categoryFor(entry: ChangeEntry): string {
+    const fromLive = categoryById.get(entry.contact_id);
+    if (fromLive) return fromLive;
+    const snap = parseSnapshot(entry.after) || parseSnapshot(entry.before);
+    return snap?.category?.trim() || "Uncategorized";
+  }
+
+  const categories = new Set<string>(
+    contacts.map((c) => c.category?.trim() || "Uncategorized")
+  );
+
+  const map = new Map<string, NicheAnalytics>();
+  for (const category of categories) {
+    map.set(category, {
+      category,
+      totalCalls: 0,
+      whatsappOutreach: 0,
+      meetingsBooked: 0,
+      dealsClosed: 0,
+      verdict: "not_enough_data",
+    });
+  }
+
+  for (const entry of changelog) {
+    const category = categoryFor(entry);
+    if (!map.has(category)) {
+      map.set(category, {
+        category,
+        totalCalls: 0,
+        whatsappOutreach: 0,
+        meetingsBooked: 0,
+        dealsClosed: 0,
+        verdict: "not_enough_data",
+      });
+    }
+    const row = map.get(category)!;
+    if (entry.change_type === "cold_call_logged") row.totalCalls += 1;
+    if (entry.change_type === "whatsapp_logged") row.whatsappOutreach += 1;
+    if (entry.change_type === "meeting_booked") row.meetingsBooked += 1;
+  }
+
+  for (const c of contacts) {
+    if ((c.current_status || "").toLowerCase().trim() === "deal closed") {
+      const category = c.category?.trim() || "Uncategorized";
+      const row = map.get(category);
+      if (row) row.dealsClosed += 1;
+    }
+  }
+
+  for (const row of map.values()) {
+    if (row.totalCalls < MIN_CALLS_TO_JUDGE) {
+      row.verdict = "not_enough_data";
+    } else if (row.meetingsBooked >= MIN_MEETINGS_TO_WORK && row.dealsClosed >= MIN_DEALS_TO_WORK) {
+      row.verdict = "working";
+    } else if (row.meetingsBooked > 0) {
+      row.verdict = "promising";
+    } else {
+      row.verdict = "not_working";
+    }
+  }
+
+  return Array.from(map.values()).sort((a, b) => b.totalCalls - a.totalCalls);
 }
 
 export function dueFollowUps(contacts: Contact[]) {
