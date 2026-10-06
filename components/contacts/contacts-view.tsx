@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Contact } from "@/lib/types";
+import { Contact, CURRENT_STATUSES, isDeadLead } from "@/lib/types";
 import { isContacted } from "@/lib/insights";
-import { statusTone, interestTone } from "@/lib/badge-tone";
+import { statusTone, interestTone, currentStatusTone } from "@/lib/badge-tone";
 import { relativeTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +27,7 @@ import {
 import { EditContactDialog } from "./edit-contact-dialog";
 import { QuickLogDialog, QuickLogMode } from "./quick-log-dialog";
 import { ImportDialog } from "./import-dialog";
-import { Plus, Pencil, Trash2, Search, Phone, MessageCircle, Handshake, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Phone, MessageCircle, Handshake, Upload, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ALL = "__all";
@@ -40,6 +40,8 @@ export function ContactsView({ initialContacts }: { initialContacts: Contact[] }
   const [whatsappFilter, setWhatsappFilter] = useState(ALL);
   const [interestFilter, setInterestFilter] = useState(ALL);
   const [meetingFilter, setMeetingFilter] = useState(ALL);
+  const [currentStatusFilter, setCurrentStatusFilter] = useState(ALL);
+  const [showNotInterested, setShowNotInterested] = useState(false);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
@@ -57,11 +59,14 @@ export function ContactsView({ initialContacts }: { initialContacts: Contact[] }
 
   const filtered = useMemo(() => {
     return contacts.filter((c) => {
+      if (!showNotInterested && currentStatusFilter === ALL && isDeadLead(c.current_status))
+        return false;
       if (search) {
         const q = search.toLowerCase();
         if (!c.name.toLowerCase().includes(q) && !c.phone.includes(q)) return false;
       }
       if (category !== ALL && c.category !== category) return false;
+      if (currentStatusFilter !== ALL && c.current_status !== currentStatusFilter) return false;
       if (coldCallFilter !== ALL) {
         const contacted = isContacted(c.cold_call_status);
         if (coldCallFilter === "contacted" && !contacted) return false;
@@ -84,7 +89,17 @@ export function ContactsView({ initialContacts }: { initialContacts: Contact[] }
       }
       return true;
     });
-  }, [contacts, search, category, coldCallFilter, whatsappFilter, interestFilter, meetingFilter]);
+  }, [
+    contacts,
+    search,
+    category,
+    coldCallFilter,
+    whatsappFilter,
+    interestFilter,
+    meetingFilter,
+    currentStatusFilter,
+    showNotInterested,
+  ]);
 
   function openAdd() {
     setEditingContact(null);
@@ -114,9 +129,10 @@ export function ContactsView({ initialContacts }: { initialContacts: Contact[] }
     return data.contact as Contact;
   }
 
-  async function handleSave(form: Contact) {
+  async function handleSave(form: Contact): Promise<Contact | void> {
     const isNew = !editingContact;
     try {
+      let saved: Contact;
       if (isNew) {
         const res = await fetch("/api/contacts", {
           method: "POST",
@@ -125,12 +141,14 @@ export function ContactsView({ initialContacts }: { initialContacts: Contact[] }
         });
         if (!res.ok) throw new Error("Failed to add lead");
         const data = await res.json();
-        setContacts((prev) => [...prev, data.contact]);
+        saved = data.contact as Contact;
+        setContacts((prev) => [...prev, saved]);
         toast.success(`Added ${form.name}`);
       } else {
-        await patchContact(form.contact_id, form);
+        saved = await patchContact(form.contact_id, form);
         toast.success(`Saved ${form.name}`);
       }
+      return saved;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
       throw e;
@@ -262,6 +280,37 @@ export function ContactsView({ initialContacts }: { initialContacts: Contact[] }
             <SelectItem value="no">Not scheduled</SelectItem>
           </SelectContent>
         </Select>
+
+        <Select
+          value={currentStatusFilter}
+          onValueChange={(v) => {
+            setCurrentStatusFilter(v);
+            if (v !== ALL) setShowNotInterested(true);
+          }}
+        >
+          <SelectTrigger className="w-[190px]">
+            <SelectValue placeholder="Current status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>Current status: any</SelectItem>
+            {CURRENT_STATUSES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {currentStatusFilter === ALL && (
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={showNotInterested}
+              onChange={(e) => setShowNotInterested(e.target.checked)}
+            />
+            Show &quot;Not Interested&quot;
+          </label>
+        )}
       </div>
 
       <div className="rounded-lg border border-border bg-card">
@@ -276,6 +325,7 @@ export function ContactsView({ initialContacts }: { initialContacts: Contact[] }
               <TableHead>Last WhatsApp</TableHead>
               <TableHead>Interest</TableHead>
               <TableHead>Meeting</TableHead>
+              <TableHead>Current status</TableHead>
               <TableHead className="text-right">Log / Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -332,6 +382,11 @@ export function ContactsView({ initialContacts }: { initialContacts: Contact[] }
                       {isMeeting ? "🟢 Scheduled" : "No"}
                     </Badge>
                   </TableCell>
+                  <TableCell>
+                    <Badge variant={currentStatusTone(c.current_status)}>
+                      {c.current_status || "Can Call Again"}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right">
                     <div
                       className="flex justify-end gap-1"
@@ -361,6 +416,16 @@ export function ContactsView({ initialContacts }: { initialContacts: Contact[] }
                       >
                         <Handshake className="h-3.5 w-3.5 text-green" />
                       </Button>
+                      {isMeeting && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Log meeting outcome"
+                          onClick={() => openQuickLog(c, "outcome")}
+                        >
+                          <Flag className="h-3.5 w-3.5 text-navy" />
+                        </Button>
+                      )}
                       <Button variant="ghost" size="icon" onClick={() => openEdit(c)}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
@@ -374,7 +439,7 @@ export function ContactsView({ initialContacts }: { initialContacts: Contact[] }
             })}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} className="py-10 text-center text-sm text-muted-foreground">
+                <TableCell colSpan={10} className="py-10 text-center text-sm text-muted-foreground">
                   No leads match these filters.
                 </TableCell>
               </TableRow>
