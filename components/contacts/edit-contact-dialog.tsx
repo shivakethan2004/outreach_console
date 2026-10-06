@@ -27,8 +27,31 @@ import {
   COLD_CALL_STATUSES,
   CURRENT_STATUSES,
 } from "@/lib/types";
+import {
+  ContactProductStatus,
+  Product,
+  PRODUCT_INTEREST_STATUSES,
+} from "@/lib/products";
 
 const INTEREST_OPTIONS = ["", "Cold", "Warm", "Hot"];
+
+const emptyProductStatus = (
+  contactId: string,
+  productId: string
+): ContactProductStatus => ({
+  relationship_id: `${contactId}-${productId}`,
+  contact_id: contactId,
+  product_id: productId,
+  interest_status: "Follow-up Needed",
+  email: "",
+  notes: "",
+  meeting_status: "",
+  follow_up_date: "",
+  meeting_date: "",
+  meeting_time: "",
+  created_at: "",
+  updated_at: "",
+});
 
 export function EditContactDialog({
   open,
@@ -39,9 +62,11 @@ export function EditContactDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   contact: Contact | null;
-  onSave: (contact: Contact) => Promise<void>;
+  onSave: (contact: Contact) => Promise<Contact | void>;
 }) {
   const [form, setForm] = useState<Contact>(emptyContact(""));
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productStatuses, setProductStatuses] = useState<Record<string, ContactProductStatus>>({});
   const [saving, setSaving] = useState(false);
   const isNew = !contact;
 
@@ -49,14 +74,69 @@ export function EditContactDialog({
     setForm(contact ?? emptyContact(""));
   }, [contact, open]);
 
+  useEffect(() => {
+    if (!open) return;
+    async function loadProducts() {
+      const res = await fetch("/api/products");
+      const data = await res.json();
+      const productList = (data.products || []) as Product[];
+      setProducts(productList);
+      if (!contact || !contact.contact_id) {
+        setProductStatuses({});
+        return;
+      }
+
+      const statusRes = await fetch(
+        `/api/contact-product-statuses?contact_id=${encodeURIComponent(contact.contact_id)}`
+      );
+      const statusData = await statusRes.json();
+      const existing = (statusData.statuses || []) as ContactProductStatus[];
+      const map: Record<string, ContactProductStatus> = {};
+      for (const item of existing) map[item.product_id] = item;
+      for (const product of productList) {
+        map[product.product_id] ??= emptyProductStatus(contact.contact_id, product.product_id);
+      }
+      setProductStatuses(map);
+    }
+    loadProducts();
+  }, [contact, open]);
+
   function update<K extends keyof Contact>(key: K, value: Contact[K]) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  function updateProductStatus(productId: string, patch: Partial<ContactProductStatus>) {
+    setProductStatuses((prev) => ({
+      ...prev,
+      [productId]: {
+        ...(prev[productId] ?? emptyProductStatus(contact?.contact_id || "", productId)),
+        ...patch,
+      },
+    }));
   }
 
   async function handleSave() {
     setSaving(true);
     try {
-      await onSave(form);
+      const saved = await onSave(form);
+      const savedContactId = saved && "contact_id" in saved ? saved.contact_id : contact?.contact_id;
+      if (savedContactId) {
+        await Promise.all(
+          Object.values(productStatuses)
+            .filter((status) => status.product_id)
+            .map((status) =>
+              fetch("/api/contact-product-statuses", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  ...status,
+                  contact_id: savedContactId,
+                  relationship_id: `${savedContactId}-${status.product_id}`,
+                }),
+              })
+            )
+        );
+      }
       onOpenChange(false);
     } finally {
       setSaving(false);
@@ -299,6 +379,89 @@ export function EditContactDialog({
               placeholder="What happened on the last touch, what's next..."
             />
           </div>
+
+          {!isNew && products.length > 0 && (
+            <div className="sm:col-span-2 space-y-3 rounded-lg border border-border bg-muted/20 p-3">
+              <div className="text-sm font-medium">Product / SaaS validation</div>
+              <div className="space-y-3">
+                {products.map((product) => {
+                  const status = productStatuses[product.product_id] ?? emptyProductStatus(contact?.contact_id || "", product.product_id);
+                  return (
+                    <div key={product.product_id} className="rounded-md border border-border bg-background p-3">
+                      <div className="mb-2 text-sm font-medium">{product.name}</div>
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        <div className="space-y-1.5">
+                          <Label>Interest status</Label>
+                          <Select
+                            value={status.interest_status || "Follow-up Needed"}
+                            onValueChange={(value) =>
+                              updateProductStatus(product.product_id, { interest_status: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {PRODUCT_INTEREST_STATUSES.map((value) => (
+                                <SelectItem key={value} value={value}>
+                                  {value}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label>Email</Label>
+                          <Input
+                            value={status.email}
+                            onChange={(e) =>
+                              updateProductStatus(product.product_id, { email: e.target.value })
+                            }
+                            placeholder="name@example.com"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label>Follow-up date</Label>
+                          <Input
+                            type="date"
+                            value={status.follow_up_date}
+                            onChange={(e) =>
+                              updateProductStatus(product.product_id, { follow_up_date: e.target.value })
+                            }
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label>Meeting status</Label>
+                          <Input
+                            value={status.meeting_status}
+                            onChange={(e) =>
+                              updateProductStatus(product.product_id, { meeting_status: e.target.value })
+                            }
+                            placeholder="Demo scheduled"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5 md:col-span-2">
+                          <Label>Notes</Label>
+                          <Textarea
+                            rows={2}
+                            value={status.notes}
+                            onChange={(e) =>
+                              updateProductStatus(product.product_id, { notes: e.target.value })
+                            }
+                            placeholder="What they said about this product..."
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         <DialogFooter>

@@ -1,4 +1,5 @@
 import { Contact } from "./types";
+import { parseLocalDate, toLocalDateIso } from "./format";
 
 export const SLOT_START_HOUR = 9; // 9:00
 export const SLOT_END_HOUR = 19; // up to 18:30 start (19:00 end)
@@ -52,17 +53,19 @@ export function unscheduledMeetings(contacts: Contact[], dateIso: string): Conta
 }
 
 export function todayDateIso(): string {
-  return new Date().toISOString().slice(0, 10);
+  return toLocalDateIso(new Date());
 }
 
 export function addDays(dateIso: string, delta: number): string {
-  const d = new Date(dateIso + "T00:00:00");
+  const d = parseLocalDate(dateIso);
+  if (!d) return dateIso;
   d.setDate(d.getDate() + delta);
-  return d.toISOString().slice(0, 10);
+  return toLocalDateIso(d);
 }
 
 export function formatDateHeading(dateIso: string): string {
-  const d = new Date(dateIso + "T00:00:00");
+  const d = parseLocalDate(dateIso);
+  if (!d) return dateIso;
   return d.toLocaleDateString(undefined, {
     weekday: "long",
     month: "long",

@@ -1,6 +1,6 @@
 import { Contact, isDeadLead } from "./types";
 import { ChangeEntry, parseSnapshot } from "./changelog-types";
-import { todayIso, isSameDay } from "./format";
+import { todayIso, isSameDay, parseLocalDate, toLocalDateIso } from "./format";
 
 export function dailyActivitySeries(changelog: ChangeEntry[], days: number) {
   const today = todayIso();
@@ -14,9 +14,9 @@ export function dailyActivitySeries(changelog: ChangeEntry[], days: number) {
   }[] = [];
 
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(today + "T00:00:00");
+    const d = parseLocalDate(today) ?? new Date();
     d.setDate(d.getDate() - i);
-    const dateIso = d.toISOString().slice(0, 10);
+    const dateIso = toLocalDateIso(d);
     const dayEntries = changelog.filter((e) => isSameDay(e.timestamp, dateIso));
 
     series.push({
@@ -68,9 +68,7 @@ export function isContacted(status: string) {
 }
 
 export function parseDate(d: string): Date | null {
-  if (!d) return null;
-  const parsed = new Date(d);
-  return isNaN(parsed.getTime()) ? null : parsed;
+  return parseLocalDate(d);
 }
 
 export function computeStats(contacts: Contact[]) {
@@ -193,9 +191,9 @@ export function progressSeries(
   }[] = [];
 
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(today + "T00:00:00");
+    const d = parseLocalDate(today) ?? new Date();
     d.setDate(d.getDate() - i);
-    const dateIso = d.toISOString().slice(0, 10);
+    const dateIso = toLocalDateIso(d);
     const calls = changelog.filter(
       (e) => e.change_type === "cold_call_logged" && isSameDay(e.timestamp, dateIso)
     ).length;

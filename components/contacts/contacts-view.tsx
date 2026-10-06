@@ -129,9 +129,10 @@ export function ContactsView({ initialContacts }: { initialContacts: Contact[] }
     return data.contact as Contact;
   }
 
-  async function handleSave(form: Contact) {
+  async function handleSave(form: Contact): Promise<Contact | void> {
     const isNew = !editingContact;
     try {
+      let saved: Contact;
       if (isNew) {
         const res = await fetch("/api/contacts", {
           method: "POST",
@@ -140,12 +141,14 @@ export function ContactsView({ initialContacts }: { initialContacts: Contact[] }
         });
         if (!res.ok) throw new Error("Failed to add lead");
         const data = await res.json();
-        setContacts((prev) => [...prev, data.contact]);
+        saved = data.contact as Contact;
+        setContacts((prev) => [...prev, saved]);
         toast.success(`Added ${form.name}`);
       } else {
-        await patchContact(form.contact_id, form);
+        saved = await patchContact(form.contact_id, form);
         toast.success(`Saved ${form.name}`);
       }
+      return saved;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
       throw e;

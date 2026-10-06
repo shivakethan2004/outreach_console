@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Table2, Radio, History, CalendarDays } from "lucide-react";
+import { LayoutDashboard, Table2, Radio, History, CalendarDays, BriefcaseBusiness } from "lucide-react";
 
 const links = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/operations", label: "Operations", icon: BriefcaseBusiness },
   { href: "/contacts", label: "Contacts", icon: Table2 },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
   { href: "/activity", label: "Activity", icon: History },
