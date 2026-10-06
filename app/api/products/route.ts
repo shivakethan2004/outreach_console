@@ -1,60 +1,86 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Product } from "@/lib/products";
-import {
-  deleteProduct,
-  nextProductId,
-  readProducts,
-  upsertProduct,
-} from "@/lib/products-store";
+import { requireAuthenticatedSupabase } from "@/lib/supabase/server";
+import { supabaseErrorResponse } from "@/lib/supabase/api-error";
 
 export async function GET() {
-  return NextResponse.json({ products: readProducts() });
+  const { supabase } = await requireAuthenticatedSupabase();
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: true });
+  if (error) return supabaseErrorResponse("List products", error);
+  return NextResponse.json({ products: data });
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const products = readProducts();
-  const product: Product = {
-    product_id: body.product_id || nextProductId(products),
-    name: body.name || "New Product",
-    description: body.description || "",
-    status: body.status || "Active",
-    created_at: body.created_at || new Date().toISOString(),
-    is_active: body.is_active === undefined ? "true" : String(body.is_active),
-  };
+  const body: unknown = await req.json();
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json({ error: "Invalid product details." }, { status: 400 });
+  }
+  const input = body as Record<string, unknown>;
+  const name = typeof input.name === "string" ? input.name.trim() : "";
+  const description = typeof input.description === "string" ? input.description.trim() : "";
+  if (!name) return NextResponse.json({ error: "Product name is required." }, { status: 400 });
 
-  const updated = upsertProduct(product);
-  return NextResponse.json({ product, products: updated });
+  const { supabase, user } = await requireAuthenticatedSupabase();
+  const { data, error } = await supabase
+    .from("products")
+    .insert({ owner_id: user.id, name, description })
+    .select()
+    .single();
+  if (error) {
+    return supabaseErrorResponse(
+      "Create product",
+      error,
+      "A product with this name already exists."
+    );
+  }
+  return NextResponse.json({ product: data }, { status: 201 });
 }
 
 export async function PATCH(req: NextRequest) {
-  const body = await req.json();
-  const products = readProducts();
-  const product = products.find((entry) => entry.product_id === body.product_id);
-  if (!product) {
-    return NextResponse.json({ error: "Product not found" }, { status: 404 });
+  const body: unknown = await req.json();
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json({ error: "Invalid product changes." }, { status: 400 });
   }
-
-  const updated: Product = {
-    ...product,
-    ...body,
-    created_at: product.created_at,
-  };
-  const result = upsertProduct(updated);
-  return NextResponse.json({ product: updated, products: result });
+  const input = body as Record<string, unknown>;
+  const id = typeof input.id === "string" ? input.id : "";
+  const updates: { name?: string; description?: string; is_active?: boolean } = {};
+  if (typeof input.name === "string" && input.name.trim()) updates.name = input.name.trim();
+  if (typeof input.description === "string") updates.description = input.description.trim();
+  if (typeof input.is_active === "boolean") updates.is_active = input.is_active;
+  if (!id || Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: "Product id and valid changes are required." }, { status: 400 });
+  }
+  const { supabase } = await requireAuthenticatedSupabase();
+  const { data, error } = await supabase
+    .from("products")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .maybeSingle();
+  if (error) {
+    return supabaseErrorResponse(
+      "Update product",
+      error,
+      "A product with this name already exists."
+    );
+  }
+  if (!data) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+  return NextResponse.json({ product: data });
 }
 
 export async function DELETE(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const productId = searchParams.get("product_id");
-  if (!productId) {
-    return NextResponse.json({ error: "Missing product_id" }, { status: 400 });
-  }
-
-  const products = deleteProduct(productId);
-  if (products.length === 0) {
-    return NextResponse.json({ products: [] });
-  }
-
-  return NextResponse.json({ products });
+  const id = req.nextUrl.searchParams.get("id") || req.nextUrl.searchParams.get("product_id");
+  if (!id) return NextResponse.json({ error: "Missing product id." }, { status: 400 });
+  const { supabase } = await requireAuthenticatedSupabase();
+  const { data, error } = await supabase
+    .from("products")
+    .update({ is_active: false })
+    .eq("id", id)
+    .select()
+    .maybeSingle();
+  if (error) return supabaseErrorResponse("Archive product", error);
+  if (!data) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+  return NextResponse.json({ product: data });
 }
