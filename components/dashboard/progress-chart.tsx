@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -21,9 +21,8 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChangeEntry } from "@/lib/changelog-types";
-import { progressSeries } from "@/lib/insights";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const TOOLTIP_STYLE = {
   background: "var(--card)",
@@ -36,6 +35,13 @@ const AXIS_STYLE = { fontSize: 11, fill: "var(--slate)" };
 
 const RANGES = [7, 14, 30] as const;
 
+type CallProgressPoint = {
+  date: string;
+  calls: number;
+  target: number;
+  percent: number;
+};
+
 function barColor(pct: number) {
   if (pct >= 100) return "var(--green)";
   if (pct >= 80) return "var(--amber)";
@@ -43,22 +49,30 @@ function barColor(pct: number) {
 }
 
 export function ProgressChart({
-  changelog,
-  initialLimit,
+  callProgress,
+  initialTarget,
 }: {
-  changelog: ChangeEntry[];
-  initialLimit: number;
+  callProgress: CallProgressPoint[];
+  initialTarget: number;
 }) {
   const [range, setRange] = useState<(typeof RANGES)[number]>(14);
-  const [limit, setLimit] = useState(initialLimit);
-  const [limitInput, setLimitInput] = useState(String(initialLimit));
+  const [limit, setLimit] = useState(initialTarget);
+  const [limitInput, setLimitInput] = useState(String(initialTarget));
   const [savingLimit, setSavingLimit] = useState(false);
 
-  useEffect(() => setLimitInput(String(limit)), [limit]);
-
   const data = useMemo(
-    () => progressSeries(changelog, range, limit),
-    [changelog, range, limit]
+    () =>
+      callProgress.slice(-range).map((point) => {
+        const date = new Date(`${point.date}T12:00:00`);
+        const pct = limit > 0 ? Math.round((point.calls / limit) * 100) : 0;
+        return {
+          ...point,
+          label: date.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+          pct,
+          met: point.calls >= limit,
+        };
+      }),
+    [callProgress, range, limit]
   );
 
   const todaysCalls = data[data.length - 1]?.calls ?? 0;
@@ -67,7 +81,7 @@ export function ProgressChart({
 
   async function saveLimit() {
     const n = Number(limitInput);
-    if (!Number.isFinite(n) || n <= 0) {
+    if (!Number.isInteger(n) || n <= 0) {
       setLimitInput(String(limit));
       return;
     }
@@ -76,10 +90,15 @@ export function ProgressChart({
       const res = await fetch("/api/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ daily_call_limit: n }),
+        body: JSON.stringify({ daily_call_target: n }),
       });
-      const updated = await res.json();
-      setLimit(updated.daily_call_limit);
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Could not save the daily call target.");
+      setLimit(result.settings.daily_call_target);
+      setLimitInput(String(result.settings.daily_call_target));
+    } catch (error) {
+      setLimitInput(String(limit));
+      toast.error(error instanceof Error ? error.message : "Could not save the daily call target.");
     } finally {
       setSavingLimit(false);
     }
@@ -93,7 +112,7 @@ export function ProgressChart({
             <CardTitle>Progress</CardTitle>
             <CardDescription>
               Today: {todaysCalls}/{limit} calls ({todaysPct}%) · {daysMet}/{range} days hit the
-              limit
+              target
             </CardDescription>
           </div>
           <div className="flex items-center gap-3">
@@ -156,7 +175,7 @@ export function ProgressChart({
               y={limit}
               stroke="var(--ink)"
               strokeDasharray="4 4"
-              label={{ value: `Limit: ${limit}`, position: "right", fontSize: 11, fill: "var(--slate)" }}
+              label={{ value: `Target: ${limit}`, position: "right", fontSize: 11, fill: "var(--slate)" }}
             />
             <Bar dataKey="calls" radius={[3, 3, 0, 0]}>
               {data.map((d, i) => (

@@ -9,3 +9,9 @@ export function displayPhone(p: string): string {
   const n = normalizePhone(p);
   return n ? "+" + n : "";
 }
+
+export function canonicalPhone(p: string): string {
+  const display = displayPhone(p);
+  const digits = display.replace(/\D/g, "");
+  return digits.length >= 7 && digits.length <= 15 ? `+${digits}` : "";
+}
