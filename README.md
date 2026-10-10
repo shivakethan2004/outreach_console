@@ -51,9 +51,12 @@ Do not delete the source CSVs until the migration has been run and the imported 
 - **Follow-ups** — meetings, scheduled calls, WhatsApp queue, upcoming/overdue work, re-engagement alerts, and relative due-date labels. Its Schedule view shows free days and scheduled meetings/calls/WhatsApp follow-ups for the next 7 days, 30 days, or 3 months, with per-item rescheduling.
 - **Leads** — phone-unique lead records, product interests, status, notes, activity timeline, and CSV import for new leads.
 - **Analytics** — filter lead, deal, call, category, and follow-up metrics by product; review open follow-ups by due date and channel.
+- **AI Advisor** — ask read-only questions about the complete CRM, including notes, activity history, meetings, tasks, and all call, WhatsApp, and meeting follow-ups. Its context memory is an editable, per-owner instruction document.
 - **Settings** — call target, re-engagement window, timezone, products/services, and legacy data review.
 
 The activity history is append-only for call attempts and recorded CRM events. Follow-ups and meetings are separate records; cancelling an individual follow-up does not mark a lead as lost. Deal outcome is stored separately from lead status.
+
+The AI Advisor requires `TOGETHER_API_KEY` in the server environment (add it to `.env.local` for local development, or your deployment's server environment settings). The key must not use a `NEXT_PUBLIC_` prefix. Select the model in the Advisor; the default is free Ternary Bonsai 27B. Displayed token rates are approximate and can change; check [Together's current model catalog](https://docs.together.ai/docs/serverless/models). Advisor questions and the owner's CRM records are sent to Together AI to generate responses; review Together AI's data handling terms before enabling it. The advisor has no CRM write tools. Its context memory is stored in Supabase and only the signed-in owner can access it.
 
 ## PWA and data availability
 
@@ -67,6 +70,7 @@ The app includes a web manifest and can be installed from browsers that support 
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser and server Supabase clients; not a service-role key |
 | `SUPABASE_SERVICE_ROLE_KEY` | One-time CSV migration script only; server-side secret |
 | `SUPABASE_OWNER_ID` | One-time CSV migration script; owner Auth UUID |
+| `TOGETHER_API_KEY` | AI Advisor server route; server-side secret |
 
 ## Validation
 

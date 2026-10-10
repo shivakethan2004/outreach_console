@@ -40,7 +40,12 @@ export function CallOutcomeForm({
           phone: lead.phone,
           outcome,
           note,
-          follow_up_type: outcome === "meeting" ? "meeting" : followUpType,
+          follow_up_type:
+            outcome === "meeting"
+              ? "meeting"
+              : outcome === "follow_up"
+                ? followUpType
+                : null,
           scheduled_at:
             outcome === "meeting" || (outcome === "follow_up" && followUpType === "meeting")
               ? scheduledAt

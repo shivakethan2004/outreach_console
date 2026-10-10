@@ -66,7 +66,11 @@ export async function POST(request: NextRequest) {
     p_outcome: outcome,
     p_note: note,
     p_follow_up_type:
-      outcome === "meeting" ? "meeting" : (input.follow_up_type as string | null) || null,
+      outcome === "meeting"
+        ? "meeting"
+        : outcome === "follow_up"
+          ? (input.follow_up_type as string)
+          : null,
     p_scheduled_at: scheduledAt,
     p_meeting_mode: (input.meeting_mode as string | null) || null,
     p_product_id: (input.product_id as string | null) || null,

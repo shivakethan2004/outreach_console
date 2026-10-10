@@ -13,6 +13,7 @@ import {
   CalendarClock,
   Users,
   ChartNoAxesCombined,
+  Sparkles,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -23,6 +24,7 @@ const links = [
   { href: "/follow-ups", label: "Follow-ups", icon: CalendarClock },
   { href: "/leads", label: "Leads", icon: Users },
   { href: "/analytics", label: "Analytics", icon: ChartNoAxesCombined },
+  { href: "/advisor", label: "AI Advisor", icon: Sparkles },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
