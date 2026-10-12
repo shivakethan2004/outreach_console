@@ -3,6 +3,7 @@ import { addDaysToDate, dateInTimeZone } from "./crm-time";
 type LeadForReengagement = {
   phone: string;
   status: string;
+  call_priority: string;
   is_archived: boolean;
   updated_at: string;
 };
@@ -43,6 +44,7 @@ export function findReengagementLeads<T extends LeadForReengagement>(
   return leads.filter((lead) => {
     if (
       lead.is_archived ||
+      lead.call_priority === "not_calling" ||
       lead.status !== "in_progress" ||
       leadsWithPendingFollowUp.has(lead.phone)
     ) {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { LEAD_PRIORITIES, LeadPriority } from "@/lib/crm-types";
 import { canonicalPhone } from "@/lib/phone";
 import { supabaseErrorResponse } from "@/lib/supabase/api-error";
 import { requireAuthenticatedSupabase } from "@/lib/supabase/server";
@@ -51,6 +52,15 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: "Invalid interest level." }, { status: 400 });
     }
     updates.interest_level = input.interest_level as string | null;
+  }
+  if (input.call_priority !== undefined) {
+    if (
+      typeof input.call_priority !== "string" ||
+      !LEAD_PRIORITIES.includes(input.call_priority as LeadPriority)
+    ) {
+      return NextResponse.json({ error: "Choose a valid call priority." }, { status: 400 });
+    }
+    updates.call_priority = input.call_priority;
   }
   if (!updates.name?.trim() && input.name !== undefined) {
     return NextResponse.json({ error: "Lead name cannot be empty." }, { status: 400 });

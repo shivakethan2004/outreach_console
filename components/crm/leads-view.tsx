@@ -3,7 +3,14 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Activity as ActivityIcon } from "lucide-react";
-import type { Activity as ActivityRecord, DealOutcome, Lead, LeadStatus, Product } from "@/lib/crm-types";
+import type {
+  Activity as ActivityRecord,
+  DealOutcome,
+  Lead,
+  LeadPriority,
+  LeadStatus,
+  Product,
+} from "@/lib/crm-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ImportLeadsDialog } from "@/components/crm/import-leads-dialog";
@@ -40,6 +47,12 @@ const statusLabels: Record<LeadStatus, string> = {
   deal_closed: "Deal Closed",
 };
 
+const priorityLabels: Record<LeadPriority, string> = {
+  normal: "Normal",
+  low: "Low",
+  not_calling: "Not calling",
+};
+
 export function LeadsView() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -51,6 +64,7 @@ export function LeadsView() {
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<LeadStatus | "all">("all");
+  const [priorityFilter, setPriorityFilter] = useState<LeadPriority | "all">("all");
   const [draft, setDraft] = useState<LeadDraft>(emptyDraft);
   const [showForm, setShowForm] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -143,9 +157,13 @@ export function LeadsView() {
           !query ||
           lead.name.toLowerCase().includes(query.toLowerCase()) ||
           lead.phone.includes(query);
-        return matchesQuery && (statusFilter === "all" || lead.status === statusFilter);
+        return (
+          matchesQuery &&
+          (statusFilter === "all" || lead.status === statusFilter) &&
+          (priorityFilter === "all" || lead.call_priority === priorityFilter)
+        );
       }),
-    [leads, query, statusFilter]
+    [leads, query, statusFilter, priorityFilter]
   );
   const selectedLead = leads.find((lead) => lead.phone === selectedPhone) || null;
 
@@ -193,6 +211,23 @@ export function LeadsView() {
       await load();
     } catch (saveError) {
       toast.error(saveError instanceof Error ? saveError.message : "Could not update lead status.");
+    }
+  }
+
+  async function changePriority(call_priority: LeadPriority) {
+    if (!selectedLead) return;
+    try {
+      const response = await fetch(`/api/leads/${encodeURIComponent(selectedLead.phone)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ call_priority }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not update call priority.");
+      toast.success("Call priority updated.");
+      await load();
+    } catch (saveError) {
+      toast.error(saveError instanceof Error ? saveError.message : "Could not update call priority.");
     }
   }
 
@@ -342,6 +377,17 @@ export function LeadsView() {
                 <option key={value} value={value}>{label}</option>
               ))}
             </select>
+            <select
+              aria-label="Filter by call priority"
+              value={priorityFilter}
+              onChange={(event) => setPriorityFilter(event.target.value as LeadPriority | "all")}
+              className="h-9 rounded-md border border-input bg-card px-3 text-sm"
+            >
+              <option value="all">All priorities</option>
+              {Object.entries(priorityLabels).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
           </div>
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading leads...</p>
@@ -368,6 +414,11 @@ export function LeadsView() {
                       {lead.closed_outcome ? ` · ${lead.closed_outcome === "won" ? "Won" : "Lost"}` : ""}
                     </span>
                   </span>
+                  {lead.call_priority !== "normal" && (
+                    <span className="mt-1 inline-block rounded-full bg-amber-soft px-2 py-0.5 text-xs text-amber">
+                      {priorityLabels[lead.call_priority]}
+                    </span>
+                  )}
                   <span className="mt-1 block text-sm text-muted-foreground">
                     {lead.phone}{lead.category ? ` · ${lead.category}` : ""}
                   </span>
@@ -385,6 +436,24 @@ export function LeadsView() {
                   <h2 className="text-lg font-semibold">{selectedLead.name}</h2>
                   <p className="text-sm text-muted-foreground">{selectedLead.phone}</p>
                   {selectedLead.category && <p className="text-sm">{selectedLead.category}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lead-call-priority">Call priority</Label>
+                  <select
+                    id="lead-call-priority"
+                    value={selectedLead.call_priority}
+                    onChange={(event) => void changePriority(event.target.value as LeadPriority)}
+                    className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm"
+                  >
+                    {Object.entries(priorityLabels).map(([value, label]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                  {selectedLead.call_priority === "not_calling" && (
+                    <p className="text-xs text-muted-foreground">
+                      This lead stays available here but is excluded from lead totals and the call queue.
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lead-status">Status</Label>

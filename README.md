@@ -49,7 +49,7 @@ Do not delete the source CSVs until the migration has been run and the imported 
 - **Dashboard** — today's call goal, meetings, follow-ups, tasks, and lead analytics.
 - **Calls** — a focused queue of new and callable leads; every attempted call counts toward daily progress, including No Answer.
 - **Follow-ups** — meetings, scheduled calls, WhatsApp queue, upcoming/overdue work, re-engagement alerts, and relative due-date labels. Its Schedule view shows free days and scheduled meetings/calls/WhatsApp follow-ups for the next 7 days, 30 days, or 3 months, with per-item rescheduling.
-- **Leads** — phone-unique lead records, product interests, status, notes, activity timeline, and CSV import for new leads.
+- **Leads** — phone-unique lead records, product interests, status, call priority, notes, activity timeline, and CSV import for new leads. Low-priority leads appear after normal-priority leads in the call queue. Not-calling leads remain available in Leads but are excluded from lead totals and the call queue.
 - **Analytics** — filter lead, deal, call, category, and follow-up metrics by product; review open follow-ups by due date and channel.
 - **AI Advisor** — ask read-only questions about the complete CRM, including notes, activity history, meetings, tasks, and all call, WhatsApp, and meeting follow-ups. Its context memory is an editable, per-owner instruction document.
 - **Settings** — call target, re-engagement window, timezone, products/services, and legacy data review.

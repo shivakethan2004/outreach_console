@@ -9,7 +9,7 @@ export async function GET() {
   const [settingsResult, leadsResult, followUpsResult, meetingsResult, tasksResult, activitiesResult] =
     await Promise.all([
       supabase.from("crm_settings").select("*").eq("owner_id", user.id).maybeSingle(),
-      supabase.from("leads").select("phone,status,closed_outcome,is_archived,created_at,updated_at"),
+      supabase.from("leads").select("phone,status,call_priority,closed_outcome,is_archived,created_at,updated_at"),
       supabase.from("follow_ups").select("*"),
       supabase.from("meetings").select("*"),
       supabase.from("tasks").select("*"),
@@ -30,7 +30,10 @@ export async function GET() {
   };
   const today = dateInTimeZone(new Date(), settings.time_zone);
   const tomorrow = addDaysToDate(today, 1);
-  const activeLeads = leadsResult.data.filter((lead) => !lead.is_archived);
+  const activeLeads = leadsResult.data.filter(
+    (lead) => !lead.is_archived && lead.call_priority !== "not_calling"
+  );
+  const activeLeadPhones = new Set(activeLeads.map((lead) => lead.phone));
   const pendingFollowUps = followUpsResult.data.filter((item) => item.status === "pending");
   const scheduledToday = (value: string | null) =>
     !!value && value.slice(0, 10) === today;
@@ -64,6 +67,7 @@ export async function GET() {
       .filter(
         (activity) =>
           activity.lead_phone &&
+          activeLeadPhones.has(activity.lead_phone) &&
           ((activity.type === "call" && activity.outcome !== "no_answer") ||
             activity.type === "whatsapp")
       )
