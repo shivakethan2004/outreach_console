@@ -9,8 +9,9 @@ export async function GET() {
     supabase.from("crm_settings").select("time_zone").maybeSingle(),
     supabase
       .from("leads")
-      .select("phone, name, category, status, notes, updated_at")
+      .select("phone, name, category, status, call_priority, notes, updated_at")
       .eq("is_archived", false)
+      .neq("call_priority", "not_calling")
       .neq("status", "deal_closed"),
     supabase
       .from("follow_ups")
@@ -70,6 +71,7 @@ export async function GET() {
     .sort((left, right) => {
       const priority = { not_contacted: 0, no_answer: 1, in_progress: 2 } as const;
       return (
+        Number(left.call_priority === "low") - Number(right.call_priority === "low") ||
         priority[left.status as keyof typeof priority] -
           priority[right.status as keyof typeof priority] ||
         (latestActivity.get(left.phone) || "").localeCompare(

@@ -6,6 +6,8 @@ export const LEAD_STATUSES = [
 ] as const;
 
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
+export const LEAD_PRIORITIES = ["normal", "low", "not_calling"] as const;
+export type LeadPriority = (typeof LEAD_PRIORITIES)[number];
 export type DealOutcome = "won" | "lost";
 export type FollowUpType = "call" | "whatsapp" | "meeting";
 export type FollowUpStatus = "pending" | "completed" | "cancelled";
@@ -20,6 +22,7 @@ export type Lead = {
   rating: string;
   reviews: string;
   status: LeadStatus;
+  call_priority: LeadPriority;
   closed_outcome: DealOutcome | null;
   interest_level: "cold" | "warm" | "hot" | null;
   notes: string;

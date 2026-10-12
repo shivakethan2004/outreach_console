@@ -15,7 +15,10 @@ export async function GET(request: NextRequest) {
   const { supabase } = await requireAuthenticatedSupabase();
   const [leadsResult, productsResult, leadProductsResult, activitiesResult, followUpsResult, settingsResult] =
     await Promise.all([
-      supabase.from("leads").select("phone,category,status,closed_outcome").eq("is_archived", false),
+      supabase
+        .from("leads")
+        .select("phone,category,status,call_priority,closed_outcome")
+        .eq("is_archived", false),
       supabase.from("products").select("id,name,is_active").order("name"),
       supabase.from("lead_products").select("lead_phone,product_id,interest_status,is_active"),
       supabase.from("activities").select("lead_phone,occurred_at,is_call_attempt"),
@@ -35,7 +38,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Product not found." }, { status: 404 });
   }
 
-  const activeLeadPhones = new Set(leadsResult.data.map((lead) => lead.phone));
+  const activeLeadPhones = new Set(
+    leadsResult.data
+      .filter((lead) => lead.call_priority !== "not_calling")
+      .map((lead) => lead.phone)
+  );
   const activeRelations = leadProductsResult.data.filter(
     (relation) => relation.is_active && activeLeadPhones.has(relation.lead_phone)
   );

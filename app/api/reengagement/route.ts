@@ -8,7 +8,10 @@ export async function GET() {
   const { supabase, user } = await requireAuthenticatedSupabase();
   const [settingsResult, leadsResult, activitiesResult, followUpsResult] = await Promise.all([
     supabase.from("crm_settings").select("time_zone,reengagement_days").eq("owner_id", user.id).maybeSingle(),
-    supabase.from("leads").select("phone,name,category,status,is_archived,updated_at").eq("is_archived", false),
+    supabase
+      .from("leads")
+      .select("phone,name,category,status,call_priority,is_archived,updated_at")
+      .eq("is_archived", false),
     supabase.from("activities").select("lead_phone,occurred_at"),
     supabase.from("follow_ups").select("lead_phone,status"),
   ]);

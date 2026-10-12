@@ -9,7 +9,7 @@ import { LeadTimelineDialog } from "@/components/crm/lead-timeline-dialog";
 
 type QueueLead = Pick<
   Lead,
-  "phone" | "name" | "category" | "status" | "notes" | "updated_at"
+  "phone" | "name" | "category" | "status" | "call_priority" | "notes" | "updated_at"
 > & { last_activity_at: string | null };
 
 type DashboardToday = { calls_completed: number; call_target: number };
@@ -156,6 +156,7 @@ export function CallsView() {
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {lead.status.replaceAll("_", " ")}
+                      {lead.call_priority === "low" ? " · Low priority" : ""}
                     </p>
                   </div>
                   <Button size="sm" onClick={() => setSelected(lead)}>
