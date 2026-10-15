@@ -41,7 +41,7 @@ const analyticItems = [
   { key: "in_progress", label: "In progress" },
   { key: "no_answer", label: "No answer" },
   { key: "talked_contacted", label: "Talked / contacted" },
-  { key: "not_interested", label: "Not interested" },
+  { key: "not_interested", label: "Lost leads" },
   { key: "deals_won", label: "Deals won" },
   { key: "follow_ups", label: "Open follow-ups" },
 ] as const;

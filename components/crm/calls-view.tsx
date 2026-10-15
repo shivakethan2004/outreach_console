@@ -5,6 +5,13 @@ import { Lead, Product } from "@/lib/crm-types";
 import { CallOutcomeForm } from "./call-outcome-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { LeadTimelineDialog } from "@/components/crm/lead-timeline-dialog";
 
 type QueueLead = Pick<
@@ -126,66 +133,68 @@ export function CallsView() {
 
       <LeadTimelineDialog phone={timelinePhone} onOpenChange={setTimelinePhone} />
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <section className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold">Call queue</h2>
-            <span className="text-xs text-muted-foreground">{queue.length} leads</span>
-          </div>
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading calls...</p>
-          ) : queue.length === 0 ? (
-            <Card><CardContent className="p-5 text-sm text-muted-foreground">
-              You&apos;re caught up. No more leads need a call attempt today.
-            </CardContent></Card>
-          ) : (
-            queue.map((lead) => (
-              <Card key={lead.phone}>
-                <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
-                  <div className="min-w-0">
-                    <button
-                      type="button"
-                      onClick={() => setTimelinePhone(lead.phone)}
-                      className="block max-w-full truncate text-left font-medium text-primary underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      aria-label={`View notes and timeline for ${lead.name}`}
-                    >
-                      {lead.name}
-                    </button>
-                    <p className="truncate text-sm text-muted-foreground">
-                      {lead.phone}{lead.category ? ` · ${lead.category}` : ""}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {lead.status.replaceAll("_", " ")}
-                      {lead.call_priority === "low" ? " · Low priority" : ""}
-                    </p>
-                  </div>
-                  <Button size="sm" onClick={() => setSelected(lead)}>
-                    Log call
-                  </Button>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </section>
+      <section className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold">Call queue</h2>
+          <span className="text-xs text-muted-foreground">{queue.length} leads</span>
+        </div>
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Loading calls...</p>
+        ) : queue.length === 0 ? (
+          <Card><CardContent className="p-5 text-sm text-muted-foreground">
+            You&apos;re caught up. No more leads need a call attempt today.
+          </CardContent></Card>
+        ) : (
+          queue.map((lead) => (
+            <Card key={lead.phone}>
+              <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
+                <div className="min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => setTimelinePhone(lead.phone)}
+                    className="block max-w-full truncate text-left font-medium text-primary underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    aria-label={`View notes and timeline for ${lead.name}`}
+                  >
+                    {lead.name}
+                  </button>
+                  <p className="truncate text-sm text-muted-foreground">
+                    {lead.phone}{lead.category ? ` · ${lead.category}` : ""}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {lead.status.replaceAll("_", " ")}
+                    {lead.call_priority === "low" ? " · Low priority" : ""}
+                  </p>
+                </div>
+                <Button size="sm" onClick={() => setSelected(lead)}>
+                  Log call
+                </Button>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </section>
 
-        <section>
-          {selected ? (
-            <CallOutcomeForm
-              lead={selected}
-              products={products}
-              onCancel={() => setSelected(null)}
-              onDone={() => {
-                setSelected(null);
-                void load();
-              }}
-            />
-          ) : (
-            <div className="rounded-lg border border-dashed border-border p-6 text-sm text-muted-foreground">
-              Choose a lead to record the call outcome.
-            </div>
+      <Dialog open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
+        <DialogContent>
+          {selected && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Log call with {selected.name}</DialogTitle>
+                <DialogDescription>{selected.phone}</DialogDescription>
+              </DialogHeader>
+              <CallOutcomeForm
+                lead={selected}
+                products={products}
+                onCancel={() => setSelected(null)}
+                onDone={() => {
+                  setSelected(null);
+                  void load();
+                }}
+              />
+            </>
           )}
-        </section>
-      </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

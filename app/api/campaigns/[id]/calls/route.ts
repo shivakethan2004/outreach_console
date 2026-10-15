@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isCallOutcome } from "@/lib/crm-types";
 import { canonicalPhone } from "@/lib/phone";
 import { supabaseErrorResponse } from "@/lib/supabase/api-error";
 import { requireAuthenticatedSupabase } from "@/lib/supabase/server";
@@ -19,7 +20,7 @@ export async function POST(
   const input = body as Record<string, unknown>;
   const phone = typeof input.phone === "string" ? canonicalPhone(input.phone) : "";
   if (!phone) return NextResponse.json({ error: "Choose a valid lead." }, { status: 400 });
-  if (!["no_answer", "not_interested", "follow_up", "meeting"].includes(String(input.outcome))) {
+  if (!isCallOutcome(input.outcome)) {
     return NextResponse.json({ error: "Choose a valid call outcome." }, { status: 400 });
   }
   if (input.note !== undefined && typeof input.note !== "string") {

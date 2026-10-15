@@ -6,6 +6,13 @@ import { ArrowLeft, ChevronDown, ChevronRight, FileText, Pause, Play, Plus, Rota
 import { Lead, Product } from "@/lib/crm-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,7 +58,7 @@ type CampaignScript = {
 };
 type CampaignDetail = {
   campaign: Omit<Campaign, "stats">;
-  leads: Array<Pick<Lead, "phone" | "name" | "category" | "status">>;
+  leads: Array<Pick<Lead, "phone" | "name" | "category" | "status" | "is_archived">>;
   calls: CampaignCall[];
   scripts: CampaignScript[];
 };
@@ -403,11 +410,16 @@ export function CampaignsView() {
                   <div className="min-w-0">
                     <p className="truncate font-medium">{lead.name}</p>
                     <p className="truncate text-sm text-muted-foreground">{lead.phone}{lead.category ? ` · ${lead.category}` : ""}</p>
+                    {lead.is_archived && (
+                      <p className="mt-1 text-xs text-muted-foreground">Archived</p>
+                    )}
                     <p className="mt-1 text-xs text-muted-foreground">
                       {leadCalls.calls} attempts · {leadCalls.answered} answered · {leadCalls.conversations} conversations · {formatDuration(leadCalls.spokenSeconds)} spoken
                     </p>
                   </div>
-                  {detail.campaign.status === "active" && lead.status !== "deal_closed" && (
+                  {detail.campaign.status === "active" &&
+                    !lead.is_archived &&
+                    lead.status !== "deal_closed" && (
                     isRecording ? (
                       <Button size="sm" variant="destructive" onClick={() => {
                         setRecordingSeconds(Math.max(0, Math.floor((Date.now() - recording.startedAt) / 1000)));
@@ -428,16 +440,6 @@ export function CampaignsView() {
                 </CardContent></Card>
               );
             })}
-            {selectedLead && !recording && (
-              <CallOutcomeForm
-                lead={selectedLead}
-                products={products}
-                campaignId={detail.campaign.id}
-                durationSeconds={recordingSeconds}
-                onCancel={() => setSelectedLead(null)}
-                onDone={() => void refreshAfterCall()}
-              />
-            )}
           </section>
 
           <section className="space-y-4">
@@ -520,6 +522,7 @@ export function CampaignsView() {
                       )
                     )}
                   </div>
+
                 </div>
               ))}
               <form onSubmit={addScript} className="space-y-2 border-t pt-3">
@@ -542,6 +545,31 @@ export function CampaignsView() {
             </CardContent></Card>
           </section>
         </div>
+        <Dialog
+          open={selectedLead !== null && !recording}
+          onOpenChange={(open) => !open && setSelectedLead(null)}
+        >
+          <DialogContent>
+            {selectedLead && !recording && (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Log call with {selectedLead.name}</DialogTitle>
+                  <DialogDescription>
+                    {selectedLead.phone} · Recorded duration: {formatDuration(recordingSeconds)}
+                  </DialogDescription>
+                </DialogHeader>
+                <CallOutcomeForm
+                  lead={selectedLead}
+                  products={products}
+                  campaignId={detail.campaign.id}
+                  durationSeconds={recordingSeconds}
+                  onCancel={() => setSelectedLead(null)}
+                  onDone={() => void refreshAfterCall()}
+                />
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
