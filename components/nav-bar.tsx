@@ -20,7 +20,7 @@ import {
 
 const links = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/calls", label: "Calls", icon: Phone },
+  { href: "/campaigns", label: "Campaigns", icon: Phone },
   { href: "/follow-ups", label: "Follow-ups", icon: CalendarClock },
   { href: "/leads", label: "Leads", icon: Users },
   { href: "/analytics", label: "Analytics", icon: ChartNoAxesCombined },

@@ -15,11 +15,15 @@ export function CallOutcomeForm({
   products,
   onDone,
   onCancel,
+  campaignId,
+  durationSeconds = 0,
 }: {
   lead: Pick<Lead, "phone" | "name">;
   products: Product[];
   onDone: () => void;
   onCancel: () => void;
+  campaignId?: string;
+  durationSeconds?: number;
 }) {
   const [outcome, setOutcome] = useState<CallOutcome>("no_answer");
   const [followUpType, setFollowUpType] = useState<"call" | "whatsapp" | "meeting">("call");
@@ -33,13 +37,14 @@ export function CallOutcomeForm({
     event.preventDefault();
     setSaving(true);
     try {
-      const response = await fetch("/api/calls", {
+      const response = await fetch(campaignId ? `/api/campaigns/${campaignId}/calls` : "/api/calls", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           phone: lead.phone,
           outcome,
           note,
+          duration_seconds: durationSeconds,
           follow_up_type:
             outcome === "meeting"
               ? "meeting"
@@ -73,6 +78,11 @@ export function CallOutcomeForm({
       <div>
         <h3 className="font-semibold">Log call with {lead.name}</h3>
         <p className="text-xs text-muted-foreground">{lead.phone}</p>
+        {campaignId && (
+          <p className="mt-1 text-xs text-muted-foreground">
+            Recorded duration: {Math.floor(durationSeconds / 60)}m {durationSeconds % 60}s
+          </p>
+        )}
       </div>
 
       <div className="space-y-1.5">
