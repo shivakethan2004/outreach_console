@@ -2,13 +2,11 @@
 
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
-import { Lead, Product } from "@/lib/crm-types";
+import { CallOutcome, Lead, Product } from "@/lib/crm-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
-type CallOutcome = "no_answer" | "not_interested" | "follow_up" | "meeting";
 
 export function CallOutcomeForm({
   lead,
@@ -74,17 +72,7 @@ export function CallOutcomeForm({
     outcome === "meeting" || (outcome === "follow_up" && followUpType === "meeting");
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-border bg-muted/20 p-4">
-      <div>
-        <h3 className="font-semibold">Log call with {lead.name}</h3>
-        <p className="text-xs text-muted-foreground">{lead.phone}</p>
-        {campaignId && (
-          <p className="mt-1 text-xs text-muted-foreground">
-            Recorded duration: {Math.floor(durationSeconds / 60)}m {durationSeconds % 60}s
-          </p>
-        )}
-      </div>
-
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="call-outcome">Outcome</Label>
         <select
@@ -95,6 +83,8 @@ export function CallOutcomeForm({
         >
           <option value="no_answer">No Answer</option>
           <option value="not_interested">Not Interested</option>
+          <option value="not_qualified">Not Qualified</option>
+          <option value="wrong_lead">Wrong Lead</option>
           <option value="follow_up">Follow-up</option>
           <option value="meeting">Meeting</option>
         </select>
@@ -162,6 +152,23 @@ export function CallOutcomeForm({
             </select>
           </div>
         </>
+      )}
+
+      {(outcome === "not_qualified" || outcome === "wrong_lead") && (
+        <div className="space-y-1.5">
+          <Label htmlFor="call-note">Outcome note (optional)</Label>
+          <Textarea
+            id="call-note"
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            placeholder={
+              outcome === "wrong_lead"
+                ? "Why is this the wrong lead?"
+                : "Why is this lead not qualified?"
+            }
+            rows={2}
+          />
+        </div>
       )}
 
       {(outcome === "follow_up" || meetingDetails) && (

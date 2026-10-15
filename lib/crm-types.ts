@@ -11,6 +11,19 @@ export type LeadPriority = (typeof LEAD_PRIORITIES)[number];
 export type DealOutcome = "won" | "lost";
 export type FollowUpType = "call" | "whatsapp" | "meeting";
 export type FollowUpStatus = "pending" | "completed" | "cancelled";
+export const CALL_OUTCOMES = [
+  "no_answer",
+  "not_interested",
+  "not_qualified",
+  "wrong_lead",
+  "follow_up",
+  "meeting",
+] as const;
+export type CallOutcome = (typeof CALL_OUTCOMES)[number];
+
+export function isCallOutcome(value: unknown): value is CallOutcome {
+  return typeof value === "string" && CALL_OUTCOMES.some((outcome) => outcome === value);
+}
 
 export type Lead = {
   phone: string;

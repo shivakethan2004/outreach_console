@@ -17,7 +17,7 @@ export async function GET(
     supabase.from("campaigns").select("*").eq("id", id).maybeSingle(),
     supabase
       .from("campaign_leads")
-      .select("lead_phone, leads(phone, name, category, status)")
+      .select("lead_phone, leads(phone, name, category, status, is_archived)")
       .eq("campaign_id", id)
       .order("added_at", { ascending: true }),
     supabase
