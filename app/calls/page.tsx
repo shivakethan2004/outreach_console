@@ -1,5 +1,5 @@
-import { CallsView } from "@/components/crm/calls-view";
+import { redirect } from "next/navigation";
 
 export default function CallsPage() {
-  return <CallsView />;
+  redirect("/campaigns");
 }
