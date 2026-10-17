@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Activity as ActivityIcon } from "lucide-react";
+import { DEAL_OUTCOME_LABELS } from "@/lib/crm-types";
 import type {
   Activity as ActivityRecord,
   DealOutcome,
@@ -59,7 +60,11 @@ export function LeadsView() {
   const [selectedPhone, setSelectedPhone] = useState("");
   const [activities, setActivities] = useState<ActivityRecord[]>([]);
   const [closingPhone, setClosingPhone] = useState<string | null>(null);
-  const [closeOutcome, setCloseOutcome] = useState<DealOutcome | "">("");
+  const [closeDraft, setCloseDraft] = useState<{
+    phone: string;
+    outcome: DealOutcome | "";
+    amount: string;
+  } | null>(null);
   const [editingProducts, setEditingProducts] = useState(false);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [query, setQuery] = useState("");
@@ -166,6 +171,14 @@ export function LeadsView() {
     [leads, query, statusFilter, priorityFilter]
   );
   const selectedLead = leads.find((lead) => lead.phone === selectedPhone) || null;
+  const closeOutcome =
+    closeDraft?.phone === selectedPhone
+      ? closeDraft.outcome
+      : selectedLead?.closed_outcome || "";
+  const closeAmount =
+    closeDraft?.phone === selectedPhone
+      ? closeDraft.amount
+      : String(selectedLead?.amount_received ?? "");
 
   function updateDraft<K extends keyof LeadDraft>(key: K, value: LeadDraft[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -194,7 +207,11 @@ export function LeadsView() {
     }
   }
 
-  async function changeStatus(status: LeadStatus, outcome: DealOutcome | null = null) {
+  async function changeStatus(
+    status: LeadStatus,
+    outcome: DealOutcome | null = null,
+    amountReceived: number | null = null
+  ) {
     if (!selectedLead) return;
     try {
       const response = await fetch(
@@ -202,15 +219,47 @@ export function LeadsView() {
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status, closed_outcome: outcome }),
+          body: JSON.stringify({
+            status,
+            closed_outcome: outcome,
+            amount_received: amountReceived,
+          }),
         }
       );
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not update lead status.");
       toast.success("Lead status updated.");
+      setCloseDraft(null);
       await load();
     } catch (saveError) {
       toast.error(saveError instanceof Error ? saveError.message : "Could not update lead status.");
+    }
+  }
+
+  async function savePipelineAmount(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedLead) return;
+    const formData = new FormData(event.currentTarget);
+    const amount = Number(formData.get("pipeline_amount"));
+    if (!Number.isInteger(amount) || amount < 1) {
+      toast.error("Estimated deal value must be a whole amount greater than zero.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const response = await fetch(`/api/leads/${encodeURIComponent(selectedLead.phone)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pipeline_amount: amount }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not save the estimated deal value.");
+      toast.success("Estimated deal value saved.");
+      await load();
+    } catch (saveError) {
+      toast.error(saveError instanceof Error ? saveError.message : "Could not save the estimated deal value.");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -411,7 +460,7 @@ export function LeadsView() {
                     <span className="font-medium">{lead.name}</span>
                     <span className="rounded-full bg-secondary px-2 py-0.5 text-xs">
                       {statusLabels[lead.status]}
-                      {lead.closed_outcome ? ` · ${lead.closed_outcome === "won" ? "Won" : "Lost"}` : ""}
+                      {lead.closed_outcome ? ` · ${DEAL_OUTCOME_LABELS[lead.closed_outcome]}` : ""}
                     </span>
                   </span>
                   {lead.call_priority !== "normal" && (
@@ -455,6 +504,27 @@ export function LeadsView() {
                     </p>
                   )}
                 </div>
+                <form onSubmit={savePipelineAmount} className="space-y-2">
+                  <Label htmlFor="lead-pipeline-amount">Estimated deal value (₹)</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      key={`${selectedLead.phone}-${selectedLead.pipeline_amount}`}
+                      id="lead-pipeline-amount"
+                      name="pipeline_amount"
+                      type="number"
+                      min={1}
+                      max={1000000000}
+                      defaultValue={selectedLead.pipeline_amount}
+                      required
+                    />
+                    <Button type="submit" variant="outline" disabled={saving}>
+                      Save
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Counted in pipeline while this lead is In Progress. New leads start at ₹12,000.
+                  </p>
+                </form>
                 <div className="space-y-2">
                   <Label htmlFor="lead-status">Status</Label>
                   <select
@@ -464,9 +534,14 @@ export function LeadsView() {
                       const value = event.target.value as LeadStatus;
                       if (value === "deal_closed") {
                         setClosingPhone(selectedLead.phone);
-                        setCloseOutcome(selectedLead.closed_outcome || "");
+                        setCloseDraft({
+                          phone: selectedLead.phone,
+                          outcome: selectedLead.closed_outcome || "",
+                          amount: String(selectedLead.amount_received ?? ""),
+                        });
                       } else {
                         setClosingPhone(null);
+                        setCloseDraft(null);
                         void changeStatus(value);
                       }
                     }}
@@ -480,29 +555,78 @@ export function LeadsView() {
                     <div className="space-y-2">
                       <select
                         aria-label="Deal outcome"
-                        value={selectedLead.status === "deal_closed" ? selectedLead.closed_outcome || "" : closeOutcome}
+                        value={closeOutcome}
                         onChange={(event) => {
                           const value = event.target.value as DealOutcome | "";
-                          if (selectedLead.status === "deal_closed" && value) {
+                          if (
+                            selectedLead.status === "deal_closed" &&
+                            value &&
+                            value !== "won"
+                          ) {
                             void changeStatus("deal_closed", value);
                           } else {
-                            setCloseOutcome(value);
+                            setCloseDraft({
+                              phone: selectedLead.phone,
+                              outcome: value,
+                              amount: closeAmount,
+                            });
                           }
                         }}
                         className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm"
                       >
                         <option value="">Choose deal outcome</option>
-                        <option value="won">Won</option>
-                        <option value="lost">Not Interested / Lost</option>
+                        {Object.entries(DEAL_OUTCOME_LABELS).map(([value, label]) => (
+                          <option key={value} value={value}>{label}</option>
+                        ))}
                       </select>
-                      {selectedLead.status !== "deal_closed" && (
-                        <Button
-                          size="sm"
-                          disabled={!closeOutcome}
-                          onClick={() => closeOutcome && void changeStatus("deal_closed", closeOutcome)}
-                        >
-                          Save closed outcome
-                        </Button>
+                      {closeOutcome === "deferred" && (
+                        <p className="text-xs text-muted-foreground">
+                          This closes the lead, cancels its scheduled follow-ups, and excludes it from future contact queues.
+                        </p>
+                      )}
+                      {(selectedLead.status !== "deal_closed" || closeOutcome === "won") && (
+                        <>
+                          {closeOutcome === "won" && (
+                            <div className="space-y-1.5">
+                              <Label htmlFor="lead-amount-received">Actual amount received (₹)</Label>
+                              <Input
+                                id="lead-amount-received"
+                                type="number"
+                                min={1}
+                                max={1000000000}
+                                value={closeAmount}
+                                onChange={(event) =>
+                                  setCloseDraft({
+                                    phone: selectedLead.phone,
+                                    outcome: closeOutcome,
+                                    amount: event.target.value,
+                                  })
+                                }
+                                required
+                              />
+                            </div>
+                          )}
+                          <Button
+                            size="sm"
+                            disabled={
+                              !closeOutcome ||
+                              (closeOutcome === "won" &&
+                                (!Number.isInteger(Number(closeAmount)) || Number(closeAmount) < 1))
+                            }
+                            onClick={() =>
+                              closeOutcome &&
+                              void changeStatus(
+                                "deal_closed",
+                                closeOutcome,
+                                closeOutcome === "won" ? Number(closeAmount) : null
+                              )
+                            }
+                          >
+                            {selectedLead.status === "deal_closed"
+                              ? "Save amount received"
+                              : "Save closed outcome"}
+                          </Button>
+                        </>
                       )}
                     </div>
                   )}

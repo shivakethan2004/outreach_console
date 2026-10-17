@@ -23,7 +23,7 @@ type AnalyticsData = {
   };
   leads_by_category: { category: string; count: number }[];
   calls_by_date: { date: string; calls: number }[];
-  deals: { won: number; lost: number };
+  deals: { won: number; lost: number; deferred: number };
   follow_ups: {
     pending: number;
     today: number;
@@ -136,7 +136,7 @@ export function AnalyticsView() {
         ))}
       </section>
 
-      <section aria-label="Deal outcomes" className="grid gap-4 sm:grid-cols-2">
+      <section aria-label="Deal outcomes" className="grid gap-4 sm:grid-cols-3">
         <Card><CardContent className="p-4">
           <p className="text-sm text-muted-foreground">Deals won</p>
           <p className="mt-1 text-3xl font-semibold">{data.deals.won}</p>
@@ -144,6 +144,10 @@ export function AnalyticsView() {
         <Card><CardContent className="p-4">
           <p className="text-sm text-muted-foreground">Not interested / lost</p>
           <p className="mt-1 text-3xl font-semibold">{data.deals.lost}</p>
+        </CardContent></Card>
+        <Card><CardContent className="p-4">
+          <p className="text-sm text-muted-foreground">Not now · no further contact</p>
+          <p className="mt-1 text-3xl font-semibold">{data.deals.deferred}</p>
         </CardContent></Card>
       </section>
 

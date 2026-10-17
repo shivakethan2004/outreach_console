@@ -23,6 +23,7 @@ export async function PATCH(req: NextRequest) {
     daily_call_target?: number;
     reengagement_days?: number;
     time_zone?: string;
+    monthly_income_goal?: number;
   } = {};
   if (input.daily_call_target !== undefined) {
     const target = Number(input.daily_call_target);
@@ -37,6 +38,16 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Re-engagement delay must be 1–30 days." }, { status: 400 });
     }
     updates.reengagement_days = days;
+  }
+  if (input.monthly_income_goal !== undefined) {
+    const goal = Number(input.monthly_income_goal);
+    if (!Number.isInteger(goal) || goal < 0 || goal > 1000000000) {
+      return NextResponse.json(
+        { error: "Monthly income goal must be a whole amount from 0 to 1,000,000,000." },
+        { status: 400 }
+      );
+    }
+    updates.monthly_income_goal = goal;
   }
   if (input.time_zone !== undefined) {
     if (typeof input.time_zone !== "string") {

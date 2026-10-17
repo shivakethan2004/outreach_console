@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Activity, Lead, LeadStatus } from "@/lib/crm-types";
+import { Activity, DEAL_OUTCOME_LABELS, Lead, LeadStatus } from "@/lib/crm-types";
 import {
   Dialog,
   DialogContent,
@@ -97,7 +97,7 @@ export function LeadTimelineDialog({
           <DialogTitle>{lead?.name || "Lead timeline"}</DialogTitle>
           <DialogDescription>
             {lead
-              ? `${lead.phone}${lead.category ? ` · ${lead.category}` : ""} · ${statusLabels[lead.status]}`
+              ? `${lead.phone}${lead.category ? ` · ${lead.category}` : ""} · ${statusLabels[lead.status]}${lead.closed_outcome ? ` · ${DEAL_OUTCOME_LABELS[lead.closed_outcome]}` : ""}`
               : "Notes and activity history for this lead."}
           </DialogDescription>
         </DialogHeader>

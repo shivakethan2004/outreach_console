@@ -21,12 +21,31 @@ type DashboardData = {
     no_answer: number;
     talked_contacted: number;
     not_interested: number;
+    do_not_contact: number;
     deals_won: number;
     follow_ups: number;
     reengagement_needed: number;
   };
+  money: {
+    pipeline_amount: number;
+    pipeline_leads: number;
+    earned_this_month: number;
+    earned_all_time: number;
+    monthly_income_goal: number;
+    pipeline_target: number | null;
+    historical_win_rate: number | null;
+    closed_deals: number;
+    won_deals: number;
+  };
   call_progress: { date: string; calls: number; target: number; percent: number }[];
 };
+
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(amount);
 
 const workItems = [
   { key: "meetings", label: "Meetings today", href: "/follow-ups?view=meetings" },
@@ -42,6 +61,7 @@ const analyticItems = [
   { key: "no_answer", label: "No answer" },
   { key: "talked_contacted", label: "Talked / contacted" },
   { key: "not_interested", label: "Lost leads" },
+  { key: "do_not_contact", label: "Not now · no contact" },
   { key: "deals_won", label: "Deals won" },
   { key: "follow_ups", label: "Open follow-ups" },
 ] as const;
@@ -132,6 +152,134 @@ export function DashboardView() {
           {data.analytics.reengagement_needed === 1 ? "" : "s"} have gone quiet without a next step.
         </Link>
       )}
+
+      <section>
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">Money in the pipeline</h2>
+            <p className="text-sm text-muted-foreground">
+              Estimated value for in-progress leads and actual money received on won deals.
+            </p>
+          </div>
+          <Link href="/leads" className="text-sm font-medium text-primary underline">
+            Manage deal values
+          </Link>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Pipeline value</p>
+              <p className="mt-1 text-2xl font-semibold">{formatCurrency(data.money.pipeline_amount)}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {data.money.pipeline_leads} in-progress lead{data.money.pipeline_leads === 1 ? "" : "s"}
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Suggested pipeline target</p>
+              {data.money.pipeline_target !== null ? (
+                <>
+                  <p className="mt-1 text-2xl font-semibold">
+                    {formatCurrency(data.money.pipeline_amount)}
+                    <span className="text-base font-normal text-muted-foreground">
+                      {" "}/ {formatCurrency(data.money.pipeline_target)}
+                    </span>
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Based on a {Math.round((data.money.historical_win_rate || 0) * 100)}% close rate
+                    ({data.money.won_deals} Won of {data.money.closed_deals} closed).
+                  </p>
+                  <div
+                    role="progressbar"
+                    aria-label="Pipeline target progress"
+                    aria-valuenow={Math.min(
+                      100,
+                      Math.round((data.money.pipeline_amount / data.money.pipeline_target) * 100)
+                    )}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    className="mt-3 h-2 overflow-hidden rounded-full bg-secondary"
+                  >
+                    <div
+                      className="h-full bg-primary"
+                      style={{
+                        width: `${Math.min(
+                          100,
+                          (data.money.pipeline_amount / data.money.pipeline_target) * 100
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Estimated pipeline needed for your monthly goal.
+                  </p>
+                </>
+              ) : data.money.monthly_income_goal === 0 ? (
+                <Link href="/settings" className="mt-2 inline-block text-sm font-medium text-primary underline">
+                  Set a monthly goal
+                </Link>
+              ) : (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Close a deal to establish a historical close rate.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Earned this month</p>
+              <p className="mt-1 text-2xl font-semibold">{formatCurrency(data.money.earned_this_month)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Earned all time</p>
+              <p className="mt-1 text-2xl font-semibold">{formatCurrency(data.money.earned_all_time)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Monthly income goal</p>
+              {data.money.monthly_income_goal > 0 ? (
+                <>
+                  <p className="mt-1 text-2xl font-semibold">
+                    {formatCurrency(data.money.earned_this_month)}
+                    <span className="text-base font-normal text-muted-foreground">
+                      {" "}/ {formatCurrency(data.money.monthly_income_goal)}
+                    </span>
+                  </p>
+                  <div
+                    role="progressbar"
+                    aria-label="Monthly income goal progress"
+                    aria-valuenow={Math.min(
+                      100,
+                      Math.round((data.money.earned_this_month / data.money.monthly_income_goal) * 100)
+                    )}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    className="mt-3 h-2 overflow-hidden rounded-full bg-secondary"
+                  >
+                    <div
+                      className="h-full bg-primary"
+                      style={{
+                        width: `${Math.min(
+                          100,
+                          (data.money.earned_this_month / data.money.monthly_income_goal) * 100
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                </>
+              ) : (
+                <Link href="/settings" className="mt-2 inline-block text-sm font-medium text-primary underline">
+                  Set a monthly goal
+                </Link>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       <ProgressChart
         callProgress={data.call_progress}

@@ -88,6 +88,7 @@ export function SettingsView() {
           daily_call_target: settings.daily_call_target,
           reengagement_days: settings.reengagement_days,
           time_zone: settings.time_zone,
+          monthly_income_goal: settings.monthly_income_goal,
         }),
       });
       const result = await response.json();
@@ -183,7 +184,7 @@ export function SettingsView() {
         <CardHeader><CardTitle>Daily workflow</CardTitle></CardHeader>
         <CardContent>
           {settings && (
-            <form onSubmit={saveSettings} className="grid gap-4 sm:grid-cols-3">
+            <form onSubmit={saveSettings} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="space-y-1.5">
                 <Label htmlFor="daily-target">Daily call target</Label>
                 <Input id="daily-target" type="number" min={1} max={1000} value={settings.daily_call_target} onChange={(event) => setSettings({ ...settings, daily_call_target: Number(event.target.value) })} required />
@@ -196,7 +197,12 @@ export function SettingsView() {
                 <Label htmlFor="crm-time-zone">Time zone</Label>
                 <Input id="crm-time-zone" value={settings.time_zone} onChange={(event) => setSettings({ ...settings, time_zone: event.target.value })} required />
               </div>
-              <div className="sm:col-span-3"><Button disabled={saving}>{saving ? "Saving..." : "Save settings"}</Button></div>
+              <div className="space-y-1.5">
+                <Label htmlFor="monthly-income-goal">Monthly income goal (₹)</Label>
+                <Input id="monthly-income-goal" type="number" min={0} max={1000000000} value={settings.monthly_income_goal} onChange={(event) => setSettings({ ...settings, monthly_income_goal: Number(event.target.value) })} required />
+                <p className="text-xs text-muted-foreground">Set to 0 to hide goal tracking on the dashboard.</p>
+              </div>
+              <div className="lg:col-span-4"><Button disabled={saving}>{saving ? "Saving..." : "Save settings"}</Button></div>
             </form>
           )}
         </CardContent>

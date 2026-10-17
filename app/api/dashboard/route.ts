@@ -9,7 +9,11 @@ export async function GET() {
   const [settingsResult, leadsResult, followUpsResult, meetingsResult, tasksResult, activitiesResult] =
     await Promise.all([
       supabase.from("crm_settings").select("*").eq("owner_id", user.id).maybeSingle(),
-      supabase.from("leads").select("phone,status,call_priority,closed_outcome,is_archived,created_at,updated_at"),
+      supabase
+        .from("leads")
+        .select(
+          "phone,status,call_priority,closed_outcome,is_archived,created_at,updated_at,pipeline_amount,amount_received,won_at"
+        ),
       supabase.from("follow_ups").select("*"),
       supabase.from("meetings").select("*"),
       supabase.from("tasks").select("*"),
@@ -27,14 +31,38 @@ export async function GET() {
     daily_call_target: 30,
     reengagement_days: 4,
     time_zone: "Asia/Kolkata",
+    monthly_income_goal: 0,
   };
   const today = dateInTimeZone(new Date(), settings.time_zone);
+  const currentMonth = today.slice(0, 7);
   const tomorrow = addDaysToDate(today, 1);
   const activeLeads = leadsResult.data.filter(
     (lead) => !lead.is_archived && lead.call_priority !== "not_calling"
   );
   const activeLeadPhones = new Set(activeLeads.map((lead) => lead.phone));
   const pendingFollowUps = followUpsResult.data.filter((item) => item.status === "pending");
+  const pipelineLeads = leadsResult.data.filter(
+    (lead) => !lead.is_archived && lead.status === "in_progress"
+  );
+  const wonLeads = leadsResult.data.filter(
+    (lead) => lead.status === "deal_closed" && lead.closed_outcome === "won"
+  );
+  const lostLeads = leadsResult.data.filter(
+    (lead) => lead.status === "deal_closed" && lead.closed_outcome === "lost"
+  );
+  const closedDealCount = wonLeads.length + lostLeads.length;
+  const historicalWinRate =
+    closedDealCount > 0 ? wonLeads.length / closedDealCount : null;
+  const pipelineTarget =
+    settings.monthly_income_goal > 0 && historicalWinRate
+      ? Math.ceil(settings.monthly_income_goal / historicalWinRate)
+      : null;
+  const earnedThisMonth = wonLeads.reduce((total, lead) => {
+    if (!lead.won_at || dateInTimeZone(new Date(lead.won_at), settings.time_zone).slice(0, 7) !== currentMonth) {
+      return total;
+    }
+    return total + (lead.amount_received ?? 0);
+  }, 0);
   const scheduledToday = (value: string | null) =>
     !!value && value.slice(0, 10) === today;
   const callsToday = activitiesResult.data.filter(
@@ -113,11 +141,28 @@ export async function GET() {
       not_interested: activeLeads.filter(
         (lead) => lead.status === "deal_closed" && lead.closed_outcome === "lost"
       ).length,
+      do_not_contact: activeLeads.filter(
+        (lead) => lead.status === "deal_closed" && lead.closed_outcome === "deferred"
+      ).length,
       deals_won: activeLeads.filter(
         (lead) => lead.status === "deal_closed" && lead.closed_outcome === "won"
       ).length,
       follow_ups: pendingFollowUps.length,
       reengagement_needed: reengagementCount,
+    },
+    money: {
+      pipeline_amount: pipelineLeads.reduce((total, lead) => total + lead.pipeline_amount, 0),
+      pipeline_leads: pipelineLeads.length,
+      earned_this_month: earnedThisMonth,
+      earned_all_time: wonLeads.reduce(
+        (total, lead) => total + (lead.amount_received ?? 0),
+        0
+      ),
+      monthly_income_goal: settings.monthly_income_goal,
+      pipeline_target: pipelineTarget,
+      historical_win_rate: historicalWinRate,
+      closed_deals: closedDealCount,
+      won_deals: wonLeads.length,
     },
     call_progress: callProgress,
     next_workday: tomorrow,

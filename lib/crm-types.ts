@@ -8,7 +8,12 @@ export const LEAD_STATUSES = [
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 export const LEAD_PRIORITIES = ["normal", "low", "not_calling"] as const;
 export type LeadPriority = (typeof LEAD_PRIORITIES)[number];
-export type DealOutcome = "won" | "lost";
+export type DealOutcome = "won" | "lost" | "deferred";
+export const DEAL_OUTCOME_LABELS: Record<DealOutcome, string> = {
+  won: "Won",
+  lost: "Not Interested / Lost",
+  deferred: "Not now — no further contact",
+};
 export type FollowUpType = "call" | "whatsapp" | "meeting";
 export type FollowUpStatus = "pending" | "completed" | "cancelled";
 export const CALL_OUTCOMES = [
@@ -41,6 +46,9 @@ export type Lead = {
   status: LeadStatus;
   call_priority: LeadPriority;
   closed_outcome: DealOutcome | null;
+  pipeline_amount: number;
+  amount_received: number | null;
+  won_at: string | null;
   interest_level: "cold" | "warm" | "hot" | null;
   notes: string;
   is_archived: boolean;
@@ -123,6 +131,7 @@ export type CrmSettings = {
   daily_call_target: number;
   reengagement_days: number;
   time_zone: string;
+  monthly_income_goal: number;
 };
 
 export type LegacyMigrationReview = {
