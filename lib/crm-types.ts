@@ -25,6 +25,10 @@ export function isCallOutcome(value: unknown): value is CallOutcome {
   return typeof value === "string" && CALL_OUTCOMES.some((outcome) => outcome === value);
 }
 
+export function isDialAttemptOutcome(outcome: CallOutcome): boolean {
+  return outcome !== "not_qualified" && outcome !== "wrong_lead";
+}
+
 export type Lead = {
   phone: string;
   owner_id: string;
