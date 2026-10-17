@@ -3,7 +3,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, ChevronDown, ChevronRight, FileText, Pause, Play, Plus, RotateCcw, Square, Timer, Upload } from "lucide-react";
-import { Lead, Product } from "@/lib/crm-types";
+import { CallOutcome, isDialAttemptOutcome, Lead, Product } from "@/lib/crm-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -25,6 +25,7 @@ type CampaignStats = {
   answered: number;
   conversations: number;
   meetings: number;
+  not_dialed: number;
   average_duration_seconds: number;
 };
 type Campaign = {
@@ -41,11 +42,12 @@ type Campaign = {
 type CampaignCall = {
   id: string;
   lead_phone: string;
-  outcome: string;
+  outcome: CallOutcome;
   duration_seconds: number;
   answered: boolean;
   is_conversation: boolean;
   called_at: string;
+  active_elapsed_seconds: number | null;
 };
 type CampaignScript = {
   id: string;
@@ -81,12 +83,40 @@ function campaignElapsed(campaign: CampaignDetail["campaign"], now: number) {
   return campaign.elapsed_seconds + currentSegment;
 }
 
+function campaignRestTime(calls: CampaignCall[]) {
+  const attempts = calls
+    .filter(
+      (call): call is CampaignCall & { active_elapsed_seconds: number } =>
+        isDialAttemptOutcome(call.outcome) &&
+        call.active_elapsed_seconds !== null
+    )
+    .slice()
+    .sort((left, right) => left.active_elapsed_seconds - right.active_elapsed_seconds);
+  const restIntervals: number[] = [];
+
+  for (let index = 1; index < attempts.length; index += 1) {
+    const previousCall = attempts[index - 1];
+    const currentCall = attempts[index];
+    const elapsedSeconds = currentCall.active_elapsed_seconds - previousCall.active_elapsed_seconds;
+    const talkSeconds = currentCall.answered ? currentCall.duration_seconds : 0;
+    const restSeconds = elapsedSeconds - talkSeconds;
+    if (Number.isFinite(restSeconds) && restSeconds >= 0) restIntervals.push(restSeconds);
+  }
+
+  const total = restIntervals.reduce((sum, seconds) => sum + seconds, 0);
+  return {
+    average: restIntervals.length ? Math.round(total / restIntervals.length) : null,
+    total: restIntervals.length ? total : null,
+  };
+}
+
 export function CampaignsView() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [eligibleLeads, setEligibleLeads] = useState<EligibleLead[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [detail, setDetail] = useState<CampaignDetail | null>(null);
   const [selectedLead, setSelectedLead] = useState<Pick<Lead, "phone" | "name"> | null>(null);
+  const [initialOutcome, setInitialOutcome] = useState<CallOutcome | undefined>();
   const [recording, setRecording] = useState<{ phone: string; startedAt: number } | null>(null);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [name, setName] = useState("");
@@ -179,10 +209,11 @@ export function CampaignsView() {
   }, [recording]);
 
   const leadCallCounts = useMemo(() => {
-    const counts = new Map<string, { calls: number; answered: number; conversations: number; spokenSeconds: number }>();
+    const counts = new Map<string, { calls: number; notDialed: number; answered: number; conversations: number; spokenSeconds: number }>();
     for (const call of detail?.calls || []) {
-      const item = counts.get(call.lead_phone) || { calls: 0, answered: 0, conversations: 0, spokenSeconds: 0 };
-      item.calls += 1;
+      const item = counts.get(call.lead_phone) || { calls: 0, notDialed: 0, answered: 0, conversations: 0, spokenSeconds: 0 };
+      if (isDialAttemptOutcome(call.outcome)) item.calls += 1;
+      else item.notDialed += 1;
       if (call.is_conversation) item.conversations += 1;
       if (call.answered) {
         item.answered += 1;
@@ -306,6 +337,7 @@ export function CampaignsView() {
   async function refreshAfterCall() {
     if (!detail) return;
     setSelectedLead(null);
+    setInitialOutcome(undefined);
     setRecording(null);
     await Promise.all([loadDetail(detail.campaign.id), loadCampaigns()]);
   }
@@ -314,14 +346,18 @@ export function CampaignsView() {
 
   if (detail) {
     const calls = detail.calls;
-    const answered = calls.filter((call) => call.answered).length;
-    const conversations = calls.filter((call) => call.is_conversation).length;
+    const dialAttempts = calls.filter((call) => isDialAttemptOutcome(call.outcome));
+    const notDialed = calls.length - dialAttempts.length;
+    const answered = dialAttempts.filter((call) => call.answered).length;
+    const conversations = dialAttempts.filter((call) => call.is_conversation).length;
     const todayCalls = calls.filter((call) => new Date(call.called_at).toDateString() === new Date(now).toDateString());
-    const todayAnswered = todayCalls.filter((call) => call.answered).length;
-    const todayConversations = todayCalls.filter((call) => call.is_conversation).length;
+    const todayAttempts = todayCalls.filter((call) => isDialAttemptOutcome(call.outcome));
+    const todayAnswered = todayAttempts.filter((call) => call.answered).length;
+    const todayConversations = todayAttempts.filter((call) => call.is_conversation).length;
     const avgSpoken = answered
-      ? Math.round(calls.filter((call) => call.answered).reduce((sum, call) => sum + call.duration_seconds, 0) / answered)
+      ? Math.round(dialAttempts.filter((call) => call.answered).reduce((sum, call) => sum + call.duration_seconds, 0) / answered)
       : 0;
+    const restTime = campaignRestTime(calls);
     const thisCampaign = campaigns.find((campaign) => campaign.id === detail.campaign.id);
     const stats = thisCampaign?.stats;
 
@@ -369,17 +405,18 @@ export function CampaignsView() {
 
         {error && <p role="alert" className="rounded-md bg-rust-soft p-3 text-sm">{error}</p>}
         <p className="rounded-md border border-border p-3 text-sm text-muted-foreground">
-          Phone Link audio is not recorded. Start the timer when the prospect answers, then stop it to log the call duration and outcome.
+          Phone Link audio is not recorded. Start the timer when the prospect answers, then stop it to log the call duration and outcome. Use the disposition buttons to log a wrong or unqualified lead without starting the timer.
         </p>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {[
             ["Leads", detail.leads.length],
-            ["Calls", calls.length],
-            ["Answered", `${answered} / ${calls.length}`],
+            ["Call attempts", dialAttempts.length],
+            ["Not dialed", notDialed],
+            ["Answered", `${answered} / ${dialAttempts.length}`],
             ["Conversations (>1 min)", conversations],
             ["Meetings booked", stats?.meetings ?? calls.filter((call) => call.outcome === "meeting").length],
-            ["Today: answered / calls", `${todayAnswered} / ${todayCalls.length}`],
+            ["Today: answered / attempts", `${todayAnswered} / ${todayAttempts.length}`],
             ["Today: conversations", todayConversations],
           ].map(([label, value]) => (
             <Card key={label}><CardContent className="p-4">
@@ -389,12 +426,17 @@ export function CampaignsView() {
           ))}
         </div>
         <Card><CardContent className="flex flex-wrap gap-6 p-4 text-sm">
-          <span>Answer rate: <strong>{calls.length ? Math.round((answered / calls.length) * 100) : 0}%</strong></span>
+          <span>Answer rate: <strong>{dialAttempts.length ? Math.round((answered / dialAttempts.length) * 100) : 0}%</strong></span>
           <span>Average spoken call: <strong>{formatDuration(avgSpoken)}</strong></span>
+          <span>Average idle between attempts: <strong>{restTime.average === null ? "—" : formatDuration(restTime.average)}</strong></span>
+          <span>Total idle between attempts: <strong>{restTime.total === null ? "—" : formatDuration(restTime.total)}</strong></span>
           {recording && (
             <span className="flex items-center gap-1 text-destructive"><Timer className="h-4 w-4" /> Live call: {formatDuration(recordingSeconds)}</span>
           )}
         </CardContent></Card>
+        <p className="-mt-3 text-xs text-muted-foreground">
+          Idle metrics start after two call attempts are logged with this timing update; campaign pauses and the current call timer are excluded.
+        </p>
 
         <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
           <section className="space-y-3">
@@ -403,7 +445,7 @@ export function CampaignsView() {
               <span className="text-xs text-muted-foreground">{detail.leads.length} selected</span>
             </div>
             {detail.leads.map((lead) => {
-              const leadCalls = leadCallCounts.get(lead.phone) || { calls: 0, answered: 0, conversations: 0, spokenSeconds: 0 };
+              const leadCalls = leadCallCounts.get(lead.phone) || { calls: 0, notDialed: 0, answered: 0, conversations: 0, spokenSeconds: 0 };
               const isRecording = recording?.phone === lead.phone;
               return (
                 <Card key={lead.phone}><CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
@@ -414,27 +456,52 @@ export function CampaignsView() {
                       <p className="mt-1 text-xs text-muted-foreground">Archived</p>
                     )}
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {leadCalls.calls} attempts · {leadCalls.answered} answered · {leadCalls.conversations} conversations · {formatDuration(leadCalls.spokenSeconds)} spoken
+                      {leadCalls.calls} attempts · {leadCalls.answered} answered · {leadCalls.conversations} conversations · {formatDuration(leadCalls.spokenSeconds)} spoken{leadCalls.notDialed ? ` · ${leadCalls.notDialed} not dialed` : ""}
                     </p>
+                    {leadCalls.calls > 0 && (
+                      <p className="mt-1 text-xs font-medium text-amber-700 dark:text-amber-300">
+                        Already called · {leadCalls.calls} {leadCalls.calls === 1 ? "attempt" : "attempts"}
+                      </p>
+                    )}
                   </div>
                   {detail.campaign.status === "active" &&
                     !lead.is_archived &&
                     lead.status !== "deal_closed" && (
-                    isRecording ? (
-                      <Button size="sm" variant="destructive" onClick={() => {
-                        setRecordingSeconds(Math.max(0, Math.floor((Date.now() - recording.startedAt) / 1000)));
-                        setRecording(null);
-                        setSelectedLead(lead);
-                      }}>
-                        <Square /> Stop & log ({formatDuration(recordingSeconds)})
-                      </Button>
+                    recording ? (
+                      isRecording && (
+                        <Button size="sm" variant="destructive" onClick={() => {
+                          setRecordingSeconds(Math.max(0, Math.floor((Date.now() - recording.startedAt) / 1000)));
+                          setRecording(null);
+                          setInitialOutcome(undefined);
+                          setSelectedLead(lead);
+                        }}>
+                          <Square /> Stop & log ({formatDuration(recordingSeconds)})
+                        </Button>
+                      )
                     ) : (
-                      <Button size="sm" onClick={() => {
-                        setSelectedLead(null);
-                        setRecording({ phone: lead.phone, startedAt: Date.now() });
-                      }}>
-                        <Play /> Start timer
-                      </Button>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant={leadCalls.calls > 0 ? "outline" : "default"} onClick={() => {
+                          setSelectedLead(null);
+                          setInitialOutcome(undefined);
+                          setRecording({ phone: lead.phone, startedAt: Date.now() });
+                        }}>
+                          <Play /> {leadCalls.calls > 0 ? "Call again" : "Start timer"}
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => {
+                          setRecordingSeconds(0);
+                          setInitialOutcome("not_qualified");
+                          setSelectedLead(lead);
+                        }}>
+                          Not qualified
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => {
+                          setRecordingSeconds(0);
+                          setInitialOutcome("wrong_lead");
+                          setSelectedLead(lead);
+                        }}>
+                          Wrong lead
+                        </Button>
+                      </div>
                     )
                   )}
                 </CardContent></Card>
@@ -547,7 +614,12 @@ export function CampaignsView() {
         </div>
         <Dialog
           open={selectedLead !== null && !recording}
-          onOpenChange={(open) => !open && setSelectedLead(null)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedLead(null);
+              setInitialOutcome(undefined);
+            }
+          }}
         >
           <DialogContent>
             {selectedLead && !recording && (
@@ -555,7 +627,7 @@ export function CampaignsView() {
                 <DialogHeader>
                   <DialogTitle>Log call with {selectedLead.name}</DialogTitle>
                   <DialogDescription>
-                    {selectedLead.phone} · Recorded duration: {formatDuration(recordingSeconds)}
+                    {selectedLead.phone} · Wrong or unqualified lead dispositions are not counted as call attempts or timed calls.
                   </DialogDescription>
                 </DialogHeader>
                 <CallOutcomeForm
@@ -563,7 +635,11 @@ export function CampaignsView() {
                   products={products}
                   campaignId={detail.campaign.id}
                   durationSeconds={recordingSeconds}
-                  onCancel={() => setSelectedLead(null)}
+                  initialOutcome={initialOutcome}
+                  onCancel={() => {
+                    setSelectedLead(null);
+                    setInitialOutcome(undefined);
+                  }}
                   onDone={() => void refreshAfterCall()}
                 />
               </>
@@ -644,7 +720,7 @@ export function CampaignsView() {
             <Card className="transition-colors hover:border-primary"><CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
               <div className="min-w-0">
                 <p className="truncate font-medium">{campaign.name}</p>
-                <p className="mt-1 text-xs capitalize text-muted-foreground">{campaign.status} · {campaign.stats.leads} leads · {campaign.stats.calls} calls · {campaign.stats.meetings} meetings</p>
+                <p className="mt-1 text-xs capitalize text-muted-foreground">{campaign.status} · {campaign.stats.leads} leads · {campaign.stats.calls} call attempts · {campaign.stats.not_dialed} not dialed · {campaign.stats.meetings} meetings</p>
               </div>
               <span className="text-xs text-muted-foreground">Answered {campaign.stats.answered}/{campaign.stats.calls} · {campaign.stats.conversations} conversations</span>
             </CardContent></Card>

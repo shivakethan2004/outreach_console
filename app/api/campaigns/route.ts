@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isDialAttemptOutcome } from "@/lib/crm-types";
 import { supabaseErrorResponse } from "@/lib/supabase/api-error";
 import { requireAuthenticatedSupabase } from "@/lib/supabase/server";
 
@@ -24,18 +25,21 @@ export async function GET() {
 
   const campaignsWithStats = campaigns.map((campaign) => {
     const calls = callsResult.data.filter((call) => call.campaign_id === campaign.id);
+    const dialAttempts = calls.filter((call) => isDialAttemptOutcome(call.outcome));
+    const answeredCalls = dialAttempts.filter((call) => call.answered);
     return {
       ...campaign,
       stats: {
         leads: leadsResult.data.filter((lead) => lead.campaign_id === campaign.id).length,
-        calls: calls.length,
-        answered: calls.filter((call) => call.answered).length,
-        conversations: calls.filter((call) => call.is_conversation).length,
-        meetings: calls.filter((call) => call.outcome === "meeting").length,
-        average_duration_seconds: calls.filter((call) => call.answered).length
+        calls: dialAttempts.length,
+        not_dialed: calls.length - dialAttempts.length,
+        answered: answeredCalls.length,
+        conversations: dialAttempts.filter((call) => call.is_conversation).length,
+        meetings: dialAttempts.filter((call) => call.outcome === "meeting").length,
+        average_duration_seconds: answeredCalls.length
           ? Math.round(
-              calls.filter((call) => call.answered).reduce((total, call) => total + call.duration_seconds, 0) /
-                calls.filter((call) => call.answered).length
+              answeredCalls.reduce((total, call) => total + call.duration_seconds, 0) /
+                answeredCalls.length
             )
           : 0,
       },

@@ -22,7 +22,7 @@ export async function GET(
       .order("added_at", { ascending: true }),
     supabase
       .from("campaign_calls")
-      .select("id, lead_phone, outcome, duration_seconds, answered, is_conversation, called_at")
+      .select("id, lead_phone, outcome, duration_seconds, answered, is_conversation, called_at, active_elapsed_seconds")
       .eq("campaign_id", id)
       .order("called_at", { ascending: false }),
     supabase

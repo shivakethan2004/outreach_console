@@ -15,6 +15,7 @@ export function CallOutcomeForm({
   onCancel,
   campaignId,
   durationSeconds = 0,
+  initialOutcome = "no_answer",
 }: {
   lead: Pick<Lead, "phone" | "name">;
   products: Product[];
@@ -22,8 +23,9 @@ export function CallOutcomeForm({
   onCancel: () => void;
   campaignId?: string;
   durationSeconds?: number;
+  initialOutcome?: CallOutcome;
 }) {
-  const [outcome, setOutcome] = useState<CallOutcome>("no_answer");
+  const [outcome, setOutcome] = useState<CallOutcome>(initialOutcome);
   const [followUpType, setFollowUpType] = useState<"call" | "whatsapp" | "meeting">("call");
   const [scheduledAt, setScheduledAt] = useState("");
   const [meetingMode, setMeetingMode] = useState<"online" | "offline">("online");
@@ -42,7 +44,8 @@ export function CallOutcomeForm({
           phone: lead.phone,
           outcome,
           note,
-          duration_seconds: durationSeconds,
+          duration_seconds:
+            outcome === "not_qualified" || outcome === "wrong_lead" ? 0 : durationSeconds,
           follow_up_type:
             outcome === "meeting"
               ? "meeting"
