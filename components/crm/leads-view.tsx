@@ -4,6 +4,8 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Activity as ActivityIcon } from "lucide-react";
 import { DEAL_OUTCOME_LABELS } from "@/lib/crm-types";
+import { formatRelativeSchedule } from "@/lib/crm-time";
+import { todayIso } from "@/lib/format";
 import type {
   Activity as ActivityRecord,
   DealOutcome,
@@ -53,6 +55,45 @@ const priorityLabels: Record<LeadPriority, string> = {
   low: "Low",
   not_calling: "Not calling",
 };
+
+function getFollowUpProgress(lead: Lead) {
+  const followUps = lead.follow_ups || [];
+  const pending = followUps
+    .filter((followUp) => followUp.status === "pending")
+    .sort((left, right) => {
+      if (!left.scheduled_at) return -1;
+      if (!right.scheduled_at) return 1;
+      return left.scheduled_at.localeCompare(right.scheduled_at);
+    })[0];
+
+  if (pending) {
+    const type = pending.type === "whatsapp" ? "WhatsApp" : pending.type === "meeting" ? "Meeting" : "Call";
+    const schedule = pending.scheduled_at
+      ? formatRelativeSchedule(pending.scheduled_at, todayIso())
+      : "No date set";
+    const overdue = pending.scheduled_at && pending.scheduled_at.slice(0, 10) < todayIso();
+    return {
+      label: `${type} follow-up ${overdue ? "overdue" : "scheduled"} · ${schedule}`,
+      actionNeeded: !!overdue || !pending.scheduled_at,
+    };
+  }
+
+  const completed = followUps
+    .filter((followUp) => followUp.status === "completed")
+    .sort((left, right) =>
+      (right.completed_at || "").localeCompare(left.completed_at || "")
+    )[0];
+
+  if (completed) {
+    const type = completed.type === "whatsapp" ? "WhatsApp" : completed.type === "meeting" ? "Meeting" : "Call";
+    return {
+      label: `${type} follow-up completed · next action needed`,
+      actionNeeded: true,
+    };
+  }
+
+  return { label: "No follow-up scheduled · action needed", actionNeeded: true };
+}
 
 export function LeadsView() {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -471,6 +512,20 @@ export function LeadsView() {
                   <span className="mt-1 block text-sm text-muted-foreground">
                     {lead.phone}{lead.category ? ` · ${lead.category}` : ""}
                   </span>
+                  {lead.status === "in_progress" && (() => {
+                    const progress = getFollowUpProgress(lead);
+                    return (
+                      <span
+                        className={`mt-2 inline-block rounded-full px-2 py-0.5 text-xs ${
+                          progress.actionNeeded
+                            ? "bg-amber-soft text-amber"
+                            : "bg-teal-soft text-teal"
+                        }`}
+                      >
+                        {progress.label}
+                      </span>
+                    );
+                  })()}
                 </button>
               ))}
             </div>
