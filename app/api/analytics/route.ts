@@ -125,6 +125,9 @@ export async function GET(request: NextRequest) {
       lost: leads.filter(
         (lead) => lead.status === "deal_closed" && lead.closed_outcome === "lost"
       ).length,
+      deferred: leads.filter(
+        (lead) => lead.status === "deal_closed" && lead.closed_outcome === "deferred"
+      ).length,
     },
     follow_ups: followUpCounts,
   });

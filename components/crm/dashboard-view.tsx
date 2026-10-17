@@ -21,6 +21,7 @@ type DashboardData = {
     no_answer: number;
     talked_contacted: number;
     not_interested: number;
+    do_not_contact: number;
     deals_won: number;
     follow_ups: number;
     reengagement_needed: number;
@@ -60,6 +61,7 @@ const analyticItems = [
   { key: "no_answer", label: "No answer" },
   { key: "talked_contacted", label: "Talked / contacted" },
   { key: "not_interested", label: "Lost leads" },
+  { key: "do_not_contact", label: "Not now · no contact" },
   { key: "deals_won", label: "Deals won" },
   { key: "follow_ups", label: "Open follow-ups" },
 ] as const;

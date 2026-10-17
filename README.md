@@ -55,7 +55,7 @@ Do not delete the source CSVs until the migration has been run and the imported 
 - **AI Advisor** — ask read-only questions about the complete CRM, including notes, activity history, meetings, tasks, and all call, WhatsApp, and meeting follow-ups. Its context memory is an editable, per-owner instruction document.
 - **Settings** — call target, re-engagement window, timezone, monthly income goal, products/services, and legacy data review.
 
-The activity history is append-only for call attempts and recorded CRM events. Follow-ups and meetings are separate records; cancelling an individual follow-up does not mark a lead as lost. “Not Qualified” and “Wrong Lead” dispositions archive the lead without counting it as a closed Won/Lost deal. Deal outcome is stored separately from lead status.
+The activity history is append-only for call attempts and recorded CRM events. Follow-ups and meetings are separate records; cancelling an individual follow-up does not mark a lead as lost. “Not Qualified” and “Wrong Lead” dispositions archive the lead without counting it as a closed Won/Lost deal. Leads can also be closed as “Not now” when the prospect asks for no further contact; this cancels scheduled follow-ups and pending tasks without counting as Won or Lost. Deal outcome is stored separately from lead status.
 
 The dashboard counts actual amounts on Won leads toward earnings; a Won deal requires recording the amount received. Monthly earnings use the date the lead was marked Won, and existing Won deals can be updated with their amount from the Leads page. Suggested pipeline target is the monthly goal divided by the historical Won/(Won + Lost) rate, so it is an estimate and includes the number of closed deals used to calculate it.
 

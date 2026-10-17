@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Activity as ActivityIcon } from "lucide-react";
+import { DEAL_OUTCOME_LABELS } from "@/lib/crm-types";
 import type {
   Activity as ActivityRecord,
   DealOutcome,
@@ -459,7 +460,7 @@ export function LeadsView() {
                     <span className="font-medium">{lead.name}</span>
                     <span className="rounded-full bg-secondary px-2 py-0.5 text-xs">
                       {statusLabels[lead.status]}
-                      {lead.closed_outcome ? ` · ${lead.closed_outcome === "won" ? "Won" : "Lost"}` : ""}
+                      {lead.closed_outcome ? ` · ${DEAL_OUTCOME_LABELS[lead.closed_outcome]}` : ""}
                     </span>
                   </span>
                   {lead.call_priority !== "normal" && (
@@ -574,9 +575,15 @@ export function LeadsView() {
                         className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm"
                       >
                         <option value="">Choose deal outcome</option>
-                        <option value="won">Won</option>
-                        <option value="lost">Not Interested / Lost</option>
+                        {Object.entries(DEAL_OUTCOME_LABELS).map(([value, label]) => (
+                          <option key={value} value={value}>{label}</option>
+                        ))}
                       </select>
+                      {closeOutcome === "deferred" && (
+                        <p className="text-xs text-muted-foreground">
+                          This closes the lead, cancels its scheduled follow-ups, and excludes it from future contact queues.
+                        </p>
+                      )}
                       {(selectedLead.status !== "deal_closed" || closeOutcome === "won") && (
                         <>
                           {closeOutcome === "won" && (

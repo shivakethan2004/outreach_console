@@ -141,6 +141,9 @@ export async function GET() {
       not_interested: activeLeads.filter(
         (lead) => lead.status === "deal_closed" && lead.closed_outcome === "lost"
       ).length,
+      do_not_contact: activeLeads.filter(
+        (lead) => lead.status === "deal_closed" && lead.closed_outcome === "deferred"
+      ).length,
       deals_won: activeLeads.filter(
         (lead) => lead.status === "deal_closed" && lead.closed_outcome === "won"
       ).length,

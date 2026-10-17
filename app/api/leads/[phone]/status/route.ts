@@ -20,11 +20,11 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ error: "Choose a valid lead status." }, { status: 400 });
   }
   if (
-    (status === "deal_closed" && !["won", "lost"].includes(String(outcome))) ||
+    (status === "deal_closed" && !["won", "lost", "deferred"].includes(String(outcome))) ||
     (status !== "deal_closed" && outcome !== null)
   ) {
     return NextResponse.json(
-      { error: "Closed leads require a Won or Lost outcome." },
+      { error: "Closed leads require a Won, Lost, or Not now outcome." },
       { status: 400 }
     );
   }

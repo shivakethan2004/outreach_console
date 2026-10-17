@@ -8,7 +8,12 @@ export const LEAD_STATUSES = [
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
 export const LEAD_PRIORITIES = ["normal", "low", "not_calling"] as const;
 export type LeadPriority = (typeof LEAD_PRIORITIES)[number];
-export type DealOutcome = "won" | "lost";
+export type DealOutcome = "won" | "lost" | "deferred";
+export const DEAL_OUTCOME_LABELS: Record<DealOutcome, string> = {
+  won: "Won",
+  lost: "Not Interested / Lost",
+  deferred: "Not now — no further contact",
+};
 export type FollowUpType = "call" | "whatsapp" | "meeting";
 export type FollowUpStatus = "pending" | "completed" | "cancelled";
 export const CALL_OUTCOMES = [
