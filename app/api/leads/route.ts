@@ -7,7 +7,9 @@ export async function GET() {
   const { supabase } = await requireAuthenticatedSupabase();
   const { data, error } = await supabase
     .from("leads")
-    .select("*, lead_products(*, products(id, name, is_active))")
+    .select(
+      "*, lead_products(*, products(id, name, is_active)), follow_ups(id,type,scheduled_at,status,completed_at)"
+    )
     .eq("is_archived", false)
     .order("created_at", { ascending: false });
 

@@ -56,6 +56,10 @@ export type Lead = {
   created_at: string;
   updated_at: string;
   lead_products?: LeadProduct[];
+  follow_ups?: Pick<
+    FollowUp,
+    "id" | "type" | "scheduled_at" | "status" | "completed_at"
+  >[];
 };
 
 export type Product = {
