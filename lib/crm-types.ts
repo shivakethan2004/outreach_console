@@ -41,6 +41,9 @@ export type Lead = {
   status: LeadStatus;
   call_priority: LeadPriority;
   closed_outcome: DealOutcome | null;
+  pipeline_amount: number;
+  amount_received: number | null;
+  won_at: string | null;
   interest_level: "cold" | "warm" | "hot" | null;
   notes: string;
   is_archived: boolean;
@@ -123,6 +126,7 @@ export type CrmSettings = {
   daily_call_target: number;
   reengagement_days: number;
   time_zone: string;
+  monthly_income_goal: number;
 };
 
 export type LegacyMigrationReview = {

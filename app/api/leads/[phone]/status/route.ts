@@ -15,6 +15,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   const input = body as Record<string, unknown>;
   const status = input.status;
   const outcome = input.closed_outcome ?? null;
+  const amountReceived = input.amount_received;
   if (typeof status !== "string" || !LEAD_STATUSES.includes(status as (typeof LEAD_STATUSES)[number])) {
     return NextResponse.json({ error: "Choose a valid lead status." }, { status: 400 });
   }
@@ -27,12 +28,28 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
       { status: 400 }
     );
   }
+  if (status === "deal_closed" && outcome === "won") {
+    const amount = Number(amountReceived);
+    if (!Number.isInteger(amount) || amount < 1 || amount > 1000000000) {
+      return NextResponse.json(
+        { error: "Enter the actual amount received as a whole amount greater than zero." },
+        { status: 400 }
+      );
+    }
+  } else if (amountReceived !== undefined && amountReceived !== null) {
+    return NextResponse.json(
+      { error: "Only won deals can have an amount received." },
+      { status: 400 }
+    );
+  }
 
   const { supabase } = await requireAuthenticatedSupabase();
   const { data, error } = await supabase.rpc("update_lead_status", {
     p_phone: decodeURIComponent(phone),
     p_status: status,
     p_closed_outcome: outcome as DealOutcome | null,
+    p_amount_received:
+      status === "deal_closed" && outcome === "won" ? Number(amountReceived) : null,
   });
 
   if (error) return supabaseErrorResponse("Update lead status", error);

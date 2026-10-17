@@ -29,7 +29,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ error: "Invalid lead changes." }, { status: 400 });
   }
   const input = body as Record<string, unknown>;
-  const updates: Record<string, string | null> = {};
+  const updates: Record<string, string | number | null> = {};
 
   for (const field of ["name", "category", "address", "rating", "reviews", "notes"] as const) {
     if (input[field] === undefined) continue;
@@ -62,7 +62,17 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     }
     updates.call_priority = input.call_priority;
   }
-  if (!updates.name?.trim() && input.name !== undefined) {
+  if (input.pipeline_amount !== undefined) {
+    const amount = Number(input.pipeline_amount);
+    if (!Number.isInteger(amount) || amount < 1 || amount > 1000000000) {
+      return NextResponse.json(
+        { error: "Estimated deal value must be a whole amount greater than zero." },
+        { status: 400 }
+      );
+    }
+    updates.pipeline_amount = amount;
+  }
+  if (input.name !== undefined && typeof input.name === "string" && !input.name.trim()) {
     return NextResponse.json({ error: "Lead name cannot be empty." }, { status: 400 });
   }
   if (Object.keys(updates).length === 0) {
