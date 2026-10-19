@@ -25,10 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-background">
+      <body className="min-h-screen flex flex-col bg-background md:flex-row">
         <PwaRegistration />
         <NavBar />
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
+        <main className="mx-auto w-full min-w-0 max-w-7xl flex-1 px-4 py-5 sm:px-6 sm:py-8">
           {children}
         </main>
         <Toaster position="bottom-right" />
